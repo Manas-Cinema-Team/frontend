@@ -5,6 +5,7 @@
 Thumbs.db
 .idea/
 .vscode/*
+.claude/
 *.swp
 *.swo
 *.suo
@@ -74,3 +75,7 @@ vite.config.ts.timestamp-*.mjs
 cypress/videos/
 cypress/screenshots/
 __screenshots__/
+
+# Local external artifacts
+Premium Dark Cinema Website/
+cinema_frontend_api_contract.docx

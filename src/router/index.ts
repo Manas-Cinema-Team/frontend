@@ -9,9 +9,34 @@ const router = createRouter({
       component: () => import('@/views/HomeView.vue'),
     },
     {
-      path: '/about',
-      name: 'about',
-      component: () => import('@/views/AboutView.vue'),
+      path: '/movies/:id',
+      name: 'movie',
+      component: () => import('@/views/MovieView.vue'),
+    },
+    {
+      path: '/movies/:id/seats/:sessionId',
+      name: 'seats',
+      component: () => import('@/views/SeatsView.vue'),
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/LoginView.vue'),
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import('@/views/RegisterView.vue'),
+    },
+    {
+      path: '/booking/success',
+      name: 'booking-success',
+      component: () => import('@/views/BookingSuccessView.vue'),
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/NotFoundView.vue'),
     },
   ],
   scrollBehavior() {
