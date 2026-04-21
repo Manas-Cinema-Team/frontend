@@ -1,66 +1,190 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
+
+import AppIcon from '@/components/AppIcon.vue'
+import MovieCard from '@/components/MovieCard.vue'
+import {
+  formatDateLabel,
+  formatPrice,
+  formatTime,
+  movies,
+  upcomingSessions,
+} from '@/data/cinema'
+import { t } from '@/stores/i18n'
+
+const featured = computed(() => movies.slice(0, 4))
+const soon = computed(() => upcomingSessions(5))
+</script>
+
 <template>
-  <section class="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
-    <div class="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/20 backdrop-blur sm:p-10">
-      <p class="text-sm font-medium uppercase tracking-[0.3em] text-amber-300">Cinema</p>
-      <h1 class="mt-4 max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-        Frontend каркас для каталога фильмов и сериалов.
-      </h1>
-      <p class="mt-4 max-w-xl text-base leading-7 text-stone-300">
-        Здесь уже есть базовый layout приложения, маршруты и чистая стартовая страница без
-        шаблонного кода Vite/Vue.
-      </p>
-
-      <div class="mt-8 flex flex-wrap gap-3">
-        <RouterLink
-          to="/about"
-          class="rounded-full bg-amber-300 px-5 py-3 text-sm font-semibold text-stone-950 transition hover:bg-amber-200"
-        >
-          О проекте
-        </RouterLink>
-        <a
-          href="#stack"
-          class="rounded-full border border-white/15 px-5 py-3 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/5"
-        >
-          Что внутри
-        </a>
+  <div>
+    <!-- Hero -->
+    <section class="stage relative overflow-hidden" style="min-height: 70vh; padding-top: 96px">
+      <div class="spotlight" />
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
+        <p class="eyebrow mb-3">{{ t('home.welcome') }}</p>
+        <h1 class="display hero-title">
+          {{ t('home.heroLine1') }}<br />
+          {{ t('home.heroConnector') }} <span class="hero-title__accent">{{ t('home.heroLine2') }}</span>
+        </h1>
+        <p class="hero-sub">
+          {{ t('home.heroSub') }}
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <RouterLink to="/movies" class="btn-amber">
+            <AppIcon name="film" :size="18" />
+            {{ t('home.ctaMovies') }}
+          </RouterLink>
+          <RouterLink to="/schedule" class="btn-ghost">
+            <AppIcon name="calendar" :size="16" />
+            {{ t('home.ctaSchedule') }}
+          </RouterLink>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <aside class="rounded-3xl border border-amber-300/20 bg-amber-300/10 p-8">
-      <p class="text-sm uppercase tracking-[0.3em] text-amber-200">Status</p>
-      <ul class="mt-6 space-y-4 text-sm text-stone-200">
-        <li class="rounded-2xl border border-white/10 bg-black/10 p-4">Vue Router подключён.</li>
-        <li class="rounded-2xl border border-white/10 bg-black/10 p-4">Tailwind v4 импортирован корректно.</li>
-        <li class="rounded-2xl border border-white/10 bg-black/10 p-4">Header, main и footer вынесены в layout.</li>
-      </ul>
-    </aside>
-  </section>
+    <!-- Afisha preview -->
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex items-end justify-between mb-6 gap-4">
+        <h2 class="display section-title">
+          {{ t('home.nowShowing') }}
+        </h2>
+        <RouterLink to="/movies" class="link-more">
+          {{ t('home.allMovies') }}
+          <AppIcon name="chevron-right" :size="14" />
+        </RouterLink>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+        <MovieCard v-for="m in featured" :key="m.id" :movie="m" />
+      </div>
+    </section>
 
-  <section id="stack" class="mt-8 grid gap-4 md:grid-cols-3">
-    <article class="rounded-3xl border border-white/10 bg-stone-900/80 p-6">
-      <h2 class="text-lg font-semibold text-white">Структура</h2>
-      <p class="mt-3 text-sm leading-6 text-stone-300">
-        Основной layout находится в `App.vue`, а отображение страниц строится через `RouterView`.
-      </p>
-    </article>
+    <!-- Upcoming sessions -->
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex items-end justify-between mb-6 gap-4">
+        <h2 class="display section-title">
+          {{ t('home.upcoming') }}
+        </h2>
+        <RouterLink to="/schedule" class="link-more">
+          {{ t('home.fullSchedule') }}
+          <AppIcon name="chevron-right" :size="14" />
+        </RouterLink>
+      </div>
 
-    <article class="rounded-3xl border border-white/10 bg-stone-900/80 p-6">
-      <h2 class="text-lg font-semibold text-white">Компоненты</h2>
-      <p class="mt-3 text-sm leading-6 text-stone-300">
-        Header и footer вынесены в отдельные компоненты, чтобы дальше наращивать интерфейс без
-        хаоса в корневом файле.
-      </p>
-    </article>
-
-    <article class="rounded-3xl border border-white/10 bg-stone-900/80 p-6">
-      <h2 class="text-lg font-semibold text-white">Стили</h2>
-      <p class="mt-3 text-sm leading-6 text-stone-300">
-        Tailwind можно дальше использовать без дополнительного шаблонного CSS от стартового проекта.
-      </p>
-    </article>
-  </section>
+      <div class="flex flex-col gap-2">
+        <RouterLink
+          v-for="item in soon"
+          :key="item.session.id"
+          :to="`/sessions/${item.session.id}/seats`"
+          class="session-row"
+        >
+          <div class="session-row__time">
+            <span class="session-row__clock">
+              {{ formatTime(item.session.startDateTime) }}
+            </span>
+            <span class="session-row__date">
+              {{ formatDateLabel(item.date) }}
+            </span>
+          </div>
+          <div class="session-row__info">
+            <div class="session-row__title">
+              {{ item.movie.title }}
+            </div>
+            <div class="session-row__sub">
+              {{ item.hall.name }}
+            </div>
+          </div>
+          <div class="session-row__price">
+            {{ formatPrice(item.session.price) }}
+          </div>
+          <AppIcon name="chevron-right" :size="16" />
+        </RouterLink>
+      </div>
+    </section>
+  </div>
 </template>
 
-<script setup lang="ts">
-import { RouterLink } from 'vue-router'
-</script>
+<style scoped>
+.hero-title {
+  color: var(--text);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1;
+  margin-bottom: 1.25rem;
+}
+.hero-title__accent { color: var(--amber); }
+
+.hero-sub {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 36rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  color: var(--text);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.link-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--amber);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.session-row {
+  display: grid;
+  grid-template-columns: 120px 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  color: var(--text-muted);
+  box-shadow: var(--shadow-card);
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+.session-row:hover {
+  border-color: var(--amber);
+  transform: translateX(3px);
+}
+.session-row__time { display: flex; flex-direction: column; }
+.session-row__clock {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--text);
+  font-size: 1.3rem;
+}
+.session-row__date {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+.session-row__info { min-width: 0; }
+.session-row__title {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.session-row__sub {
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+.session-row__price {
+  color: var(--amber);
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .session-row {
+    grid-template-columns: 80px 1fr auto;
+  }
+  .session-row svg:last-child { display: none; }
+}
+</style>
