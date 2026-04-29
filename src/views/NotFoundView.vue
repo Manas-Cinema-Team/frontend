@@ -8,13 +8,13 @@ const router = useRouter()
 </script>
 
 <template>
-  <section class="stage flex items-center justify-center" style="min-height: 100vh; padding: 96px 1rem">
+  <section class="stage flex min-h-screen items-center justify-center px-4 pb-4 pt-24">
     <div class="text-center max-w-md">
-      <h1 class="display not-found__code">
-        4<span class="not-found__zero">0</span>4
+      <h1 class="display text-[clamp(4.5rem,14vw,9rem)] leading-none tracking-[0.04em] text-copy">
+        4<span class="text-brand">0</span>4
       </h1>
 
-      <p class="not-found__text">
+      <p class="mb-8 mt-4 text-base leading-7 text-dim">
         {{ t('notfound.text') }}
       </p>
 
@@ -31,20 +31,3 @@ const router = useRouter()
     </div>
   </section>
 </template>
-
-<style scoped>
-.not-found__code {
-  color: var(--text);
-  font-size: clamp(4.5rem, 14vw, 9rem);
-  line-height: 1;
-  letter-spacing: 0.04em;
-}
-.not-found__zero { color: var(--amber); }
-.not-found__text {
-  margin-top: 1rem;
-  margin-bottom: 2rem;
-  color: var(--text-dim);
-  font-size: 1rem;
-  line-height: 1.6;
-}
-</style>
