@@ -101,40 +101,54 @@ const cardType = computed(() => {
   if (n.startsWith('9')) return 'mir'
   return null
 })
+
+const panelClass = 'rounded-2xl border border-line bg-panel px-6 py-5'
+const panelLabelClass = 'mb-4 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-dim'
+const inputBaseClass = 'w-full rounded-xl border bg-surface-soft px-4 py-2.5 text-[0.9rem] text-copy outline-none transition placeholder:text-fade'
+
+const fieldClass = (name: string) => [
+  inputBaseClass,
+  errors.value[name] ? 'border-danger' : 'border-line focus:border-brand',
+]
+
+const payMethodClass = (active: boolean) =>
+  active
+    ? 'border-brand/50 bg-brand/15 text-brand'
+    : 'border-line bg-surface-soft text-muted hover:border-line-strong hover:text-copy'
 </script>
 
 <template>
-  <section class="stage" style="min-height: 100vh; padding-top: 96px">
+  <section class="stage min-h-screen pt-24">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       <!-- Шапка -->
-      <button class="back-btn" @click="router.back()">
+      <button class="mb-6 inline-flex items-center gap-2 bg-transparent text-[0.85rem] text-dim transition hover:text-copy" @click="router.back()">
         <AppIcon name="arrow-left" :size="15" />
         Назад к выбору мест
       </button>
 
-      <h1 class="display page-title">Оплата билетов</h1>
+      <h1 class="display mb-8 text-[clamp(1.75rem,4vw,2.5rem)] text-copy">Оплата билетов</h1>
 
-      <div class="payment-layout">
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
 
         <!-- ── Левая: форма оплаты ── -->
-        <div class="payment-form-col">
+        <div>
 
           <!-- Метод оплаты -->
-          <div class="pay-section">
-            <div class="pay-section__label">Способ оплаты</div>
-            <div class="pay-methods">
+          <div :class="panelClass" class="mb-4">
+            <div :class="panelLabelClass">Способ оплаты</div>
+            <div class="grid gap-3 sm:grid-cols-2">
               <button
-                class="pay-method"
-                :class="{ 'pay-method--active': payMethod === 'card' }"
+                class="flex items-center gap-2.5 rounded-xl border px-4 py-3 text-[0.85rem] font-medium transition"
+                :class="payMethodClass(payMethod === 'card')"
                 @click="payMethod = 'card'"
               >
                 <AppIcon name="credit-card" :size="18" />
                 Банковская карта
               </button>
               <button
-                class="pay-method"
-                :class="{ 'pay-method--active': payMethod === 'qr' }"
+                class="flex items-center gap-2.5 rounded-xl border px-4 py-3 text-[0.85rem] font-medium transition"
+                :class="payMethodClass(payMethod === 'qr')"
                 @click="payMethod = 'qr'"
               >
                 <AppIcon name="smartphone" :size="18" />
@@ -144,181 +158,176 @@ const cardType = computed(() => {
           </div>
 
           <!-- Форма карты -->
-          <div v-if="payMethod === 'card'" class="pay-section">
-            <div class="pay-section__label">Данные карты</div>
+          <div v-if="payMethod === 'card'" :class="panelClass" class="mb-4">
+            <div :class="panelLabelClass">Данные карты</div>
 
             <!-- Визуализация карты -->
-            <div class="card-visual">
-              <div class="card-visual__chip" />
-              <div class="card-visual__number">
+            <div class="relative mb-5 flex min-h-[160px] flex-col justify-between overflow-hidden rounded-2xl border border-brand/20 bg-[linear-gradient(135deg,#1e293b_0%,#0f172a_100%)] px-6 py-5 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+              <div class="absolute -right-[30px] -top-[30px] h-[130px] w-[130px] rounded-full bg-brand/10" />
+              <div class="h-7 w-[38px] rounded-[5px] border border-white/20 bg-[linear-gradient(135deg,#d4a017,#f5c542)]" />
+              <div class="my-3 font-mono text-[1.25rem] tracking-[0.2em] text-white/90">
                 {{ cardNumber || '•••• •••• •••• ••••' }}
               </div>
-              <div class="card-visual__bottom">
+              <div class="flex items-end gap-8">
                 <div>
-                  <div class="card-visual__field-label">Держатель</div>
-                  <div class="card-visual__field-value">{{ cardName || 'FULL NAME' }}</div>
+                  <div class="mb-0.5 text-[0.6rem] uppercase tracking-[0.1em] text-white/45">Держатель</div>
+                  <div class="text-[0.85rem] font-medium tracking-[0.05em] text-white/90">{{ cardName || 'FULL NAME' }}</div>
                 </div>
                 <div>
-                  <div class="card-visual__field-label">Срок</div>
-                  <div class="card-visual__field-value">{{ cardExpiry || 'MM/YY' }}</div>
+                  <div class="mb-0.5 text-[0.6rem] uppercase tracking-[0.1em] text-white/45">Срок</div>
+                  <div class="text-[0.85rem] font-medium tracking-[0.05em] text-white/90">{{ cardExpiry || 'MM/YY' }}</div>
                 </div>
-                <div class="card-visual__brand">
-                  <span v-if="cardType === 'visa'" class="card-brand card-brand--visa">VISA</span>
-                  <span v-else-if="cardType === 'mastercard'" class="card-brand card-brand--mc">MC</span>
-                  <span v-else-if="cardType === 'mir'" class="card-brand card-brand--mir">МИР</span>
+                <div class="ml-auto">
+                  <span v-if="cardType === 'visa'" class="text-base font-black italic tracking-[0.05em] text-[#1a73e8]">VISA</span>
+                  <span v-else-if="cardType === 'mastercard'" class="text-base font-black tracking-[0.05em] text-[#eb001b]">MC</span>
+                  <span v-else-if="cardType === 'mir'" class="text-base font-black tracking-[0.05em] text-[#00a651]">МИР</span>
                 </div>
               </div>
             </div>
 
             <!-- Поля -->
-            <div class="form-fields">
-              <div class="field-wrap field-wrap--full">
-                <label class="field-label">Номер карты</label>
+            <div class="grid gap-3.5 sm:grid-cols-2">
+              <div class="flex flex-col gap-1.5 sm:col-span-2">
+                <label class="text-[0.72rem] font-semibold tracking-[0.05em] text-dim">Номер карты</label>
                 <input
                   :value="cardNumber"
-                  class="field-input"
-                  :class="{ 'field-input--error': errors.cardNumber }"
+                  :class="fieldClass('cardNumber')"
                   placeholder="0000 0000 0000 0000"
                   inputmode="numeric"
                   maxlength="19"
                   @input="onCardInput"
                 />
-                <span v-if="errors.cardNumber" class="field-error">{{ errors.cardNumber }}</span>
+                <span v-if="errors.cardNumber" class="text-[0.72rem] text-danger">{{ errors.cardNumber }}</span>
               </div>
 
-              <div class="field-wrap field-wrap--full">
-                <label class="field-label">Имя держателя</label>
+              <div class="flex flex-col gap-1.5 sm:col-span-2">
+                <label class="text-[0.72rem] font-semibold tracking-[0.05em] text-dim">Имя держателя</label>
                 <input
                   v-model="cardName"
-                  class="field-input"
-                  :class="{ 'field-input--error': errors.cardName }"
+                  :class="fieldClass('cardName')"
                   placeholder="IVAN IVANOV"
                   @input="cardName = (cardName).toUpperCase()"
                 />
-                <span v-if="errors.cardName" class="field-error">{{ errors.cardName }}</span>
+                <span v-if="errors.cardName" class="text-[0.72rem] text-danger">{{ errors.cardName }}</span>
               </div>
 
-              <div class="field-wrap">
-                <label class="field-label">Срок действия</label>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[0.72rem] font-semibold tracking-[0.05em] text-dim">Срок действия</label>
                 <input
                   :value="cardExpiry"
-                  class="field-input"
-                  :class="{ 'field-input--error': errors.cardExpiry }"
+                  :class="fieldClass('cardExpiry')"
                   placeholder="MM/YY"
                   inputmode="numeric"
                   maxlength="5"
                   @input="onExpiryInput"
                 />
-                <span v-if="errors.cardExpiry" class="field-error">{{ errors.cardExpiry }}</span>
+                <span v-if="errors.cardExpiry" class="text-[0.72rem] text-danger">{{ errors.cardExpiry }}</span>
               </div>
 
-              <div class="field-wrap">
-                <label class="field-label">CVV</label>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[0.72rem] font-semibold tracking-[0.05em] text-dim">CVV</label>
                 <input
                   v-model="cardCvv"
-                  class="field-input"
-                  :class="{ 'field-input--error': errors.cardCvv }"
+                  :class="fieldClass('cardCvv')"
                   placeholder="•••"
                   inputmode="numeric"
                   maxlength="3"
                   type="password"
                 />
-                <span v-if="errors.cardCvv" class="field-error">{{ errors.cardCvv }}</span>
+                <span v-if="errors.cardCvv" class="text-[0.72rem] text-danger">{{ errors.cardCvv }}</span>
               </div>
             </div>
           </div>
 
           <!-- QR оплата -->
-          <div v-else class="pay-section qr-pay">
-            <div class="pay-section__label">Оплата по QR-коду</div>
-            <div class="qr-pay__box">
+          <div v-else :class="panelClass" class="mb-4">
+            <div :class="panelLabelClass">Оплата по QR-коду</div>
+            <div class="mb-4 flex flex-col items-start gap-5 sm:flex-row">
               <img
                 src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=CINEMA-PAYMENT-DEMO&bgcolor=1a1a2e&color=f59e0b&margin=10"
                 alt="QR для оплаты"
-                class="qr-pay__img"
+                class="h-[110px] w-[110px] shrink-0 rounded-[0.6rem] border-2 border-brand/30"
               />
-              <div class="qr-pay__info">
-                <div class="qr-pay__title">Отсканируйте QR-код</div>
-                <div class="qr-pay__sub">Откройте приложение банка и отсканируйте код для оплаты {{ formatPrice(total) }}</div>
-                <div class="qr-pay__apps">
-                  <span class="qr-app-chip">Mbank</span>
-                  <span class="qr-app-chip">O!Деньги</span>
-                  <span class="qr-app-chip">ЭлКарт</span>
+              <div>
+                <div class="mb-1.5 text-[0.95rem] font-bold text-copy">Отсканируйте QR-код</div>
+                <div class="mb-3 text-[0.82rem] leading-[1.5] text-dim">Откройте приложение банка и отсканируйте код для оплаты {{ formatPrice(total) }}</div>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="rounded-full border border-line bg-surface-soft px-2.5 py-1 text-[0.72rem] font-semibold text-muted">Mbank</span>
+                  <span class="rounded-full border border-line bg-surface-soft px-2.5 py-1 text-[0.72rem] font-semibold text-muted">O!Деньги</span>
+                  <span class="rounded-full border border-line bg-surface-soft px-2.5 py-1 text-[0.72rem] font-semibold text-muted">ЭлКарт</span>
                 </div>
               </div>
             </div>
-            <div class="qr-pay__note">
+            <div class="flex items-start gap-2 rounded-xl border border-brand/20 bg-brand/10 px-4 py-3 text-[0.8rem] text-dim">
               <AppIcon name="info" :size="14" />
               После оплаты нажмите кнопку «Подтвердить оплату» ниже
             </div>
           </div>
 
           <!-- Безопасность -->
-          <div class="security-note">
+          <div class="flex items-center gap-2 py-2 text-[0.75rem] text-fade">
             <AppIcon name="shield" :size="14" />
             Платёж защищён 256-bit SSL шифрованием
           </div>
         </div>
 
         <!-- ── Правая: итог заказа ── -->
-        <div class="order-summary">
-          <div class="order-summary__title">Ваш заказ</div>
+        <div class="sticky top-24 h-fit rounded-[1.2rem] border border-line bg-panel p-6 shadow-[var(--shadow-card)] lg:order-none">
+          <div class="mb-4 text-[0.7rem] font-bold uppercase tracking-[0.12em] text-dim">Ваш заказ</div>
 
           <!-- Фильм -->
-          <div class="order-movie">
-            <div class="order-movie__info">
-              <div class="order-movie__name">{{ movie?.title }}</div>
-              <div class="order-movie__meta">
-                <span v-if="hall"><AppIcon name="map-pin" :size="11" /> {{ hall.name }}</span>
-                <span v-if="session">
+          <div class="mb-3">
+            <div class="text-base font-bold text-copy">{{ movie?.title }}</div>
+            <div class="mt-1 flex flex-wrap gap-2 text-[0.72rem] text-dim">
+              <span v-if="hall" class="inline-flex items-center gap-1"><AppIcon name="map-pin" :size="11" /> {{ hall.name }}</span>
+              <span v-if="session" class="inline-flex items-center gap-1">
                   <AppIcon name="calendar" :size="11" />
                   {{ formatDateLabel(session.startDateTime.slice(0, 10)) }}
                 </span>
-                <span v-if="session">
+              <span v-if="session" class="inline-flex items-center gap-1">
                   <AppIcon name="clock" :size="11" />
                   {{ formatTime(session.startDateTime) }}
                 </span>
-              </div>
             </div>
           </div>
 
-          <div class="order-divider" />
+          <div class="my-3.5 h-px bg-line" />
 
           <!-- Места -->
-          <div class="order-seats-label">Места ({{ seats.length }})</div>
-          <div class="order-seats">
-            <span v-for="seat in seats" :key="seat" class="order-seat-chip">{{ seat }}</span>
+          <div class="mb-2 text-[0.72rem] text-dim">Места ({{ seats.length }})</div>
+          <div class="mb-2 flex flex-wrap gap-1.5">
+            <span v-for="seat in seats" :key="seat" class="rounded-[0.3rem] border border-brand/30 bg-brand/15 px-2 py-1 text-[0.78rem] font-bold text-brand">{{ seat }}</span>
           </div>
 
-          <div class="order-divider" />
+          <div class="my-3.5 h-px bg-line" />
 
           <!-- Итог -->
-          <div class="order-row">
+          <div class="mb-1.5 flex items-center justify-between text-[0.85rem] text-muted">
             <span>Билеты × {{ seats.length }}</span>
             <span>{{ formatPrice(total) }}</span>
           </div>
-          <div class="order-row order-row--service">
+          <div class="mb-1.5 flex items-center justify-between text-[0.8rem] text-fade">
             <span>Сервисный сбор</span>
             <span>0 сом</span>
           </div>
-          <div class="order-divider" />
-          <div class="order-row order-row--total">
+          <div class="my-3.5 h-px bg-line" />
+          <div class="flex items-center justify-between text-base font-bold text-copy">
             <span>Итого</span>
-            <span class="display">{{ formatPrice(total) }}</span>
+            <span class="display text-[1.5rem] text-brand">{{ formatPrice(total) }}</span>
           </div>
 
           <!-- Кнопка оплаты -->
           <button
-            class="btn-pay"
+            class="btn-amber mt-5 flex w-full items-center gap-2.5 py-3.5 text-base"
             :disabled="isProcessing"
             @click="pay"
           >
-            <span v-if="isProcessing" class="btn-pay__spinner" />
+            <span v-if="isProcessing" class="h-[18px] w-[18px] rounded-full border-2 border-zinc-900/30 border-t-zinc-900 [animation:spin_0.7s_linear_infinite]" />
             <AppIcon v-else name="lock" :size="16" />
             {{ isProcessing ? 'Обработка...' : `Оплатить ${formatPrice(total)}` }}
           </button>
 
-          <p class="order-terms">
+          <p class="mt-3 text-center text-[0.68rem] leading-[1.5] text-fade">
             Нажимая «Оплатить», вы соглашаетесь с условиями использования сервиса
           </p>
         </div>
@@ -327,232 +336,3 @@ const cardType = computed(() => {
     </div>
   </section>
 </template>
-
-<style scoped>
-.back-btn {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  margin-bottom: 1.5rem; color: var(--text-dim); font-size: 0.85rem;
-  background: transparent; border: none; cursor: pointer; transition: color 150ms ease;
-}
-.back-btn:hover { color: var(--text); }
-
-.page-title {
-  color: var(--text);
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-  margin-bottom: 2rem;
-}
-
-/* Layout */
-.payment-layout {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 2rem;
-  align-items: start;
-}
-@media (max-width: 860px) {
-  .payment-layout { grid-template-columns: 1fr; }
-  .order-summary { order: -1; }
-}
-
-/* Секции формы */
-.pay-section {
-  background: var(--bg-elev);
-  border: 1px solid var(--line);
-  border-radius: 1rem;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1rem;
-}
-.pay-section__label {
-  font-size: 0.7rem; font-weight: 700;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text-dim); margin-bottom: 1rem;
-}
-
-/* Методы оплаты */
-.pay-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-.pay-method {
-  display: flex; align-items: center; gap: 0.6rem;
-  padding: 0.75rem 1rem; border-radius: 0.7rem;
-  background: var(--surface-soft); border: 1px solid var(--line);
-  color: var(--text-muted); font-size: 0.85rem; font-weight: 500;
-  cursor: pointer; transition: all 160ms ease;
-}
-.pay-method:hover { border-color: var(--line-strong); color: var(--text); }
-.pay-method--active {
-  background: rgba(245,158,11,0.12);
-  border-color: rgba(245,158,11,0.5);
-  color: var(--amber);
-}
-
-/* Визуализация карты */
-.card-visual {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border-radius: 0.9rem;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1.25rem;
-  border: 1px solid rgba(245,158,11,0.2);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  min-height: 160px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  overflow: hidden;
-}
-.card-visual::before {
-  content: '';
-  position: absolute; top: -30px; right: -30px;
-  width: 130px; height: 130px; border-radius: 50%;
-  background: rgba(245,158,11,0.08);
-}
-.card-visual__chip {
-  width: 38px; height: 28px; border-radius: 5px;
-  background: linear-gradient(135deg, #d4a017, #f5c542);
-  border: 1px solid rgba(255,255,255,0.2);
-}
-.card-visual__number {
-  font-family: 'Courier New', monospace;
-  font-size: 1.25rem; letter-spacing: 0.2em;
-  color: rgba(255,255,255,0.9); margin: 0.75rem 0;
-}
-.card-visual__bottom {
-  display: flex; align-items: flex-end; gap: 2rem;
-}
-.card-visual__field-label {
-  font-size: 0.6rem; letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.45); text-transform: uppercase; margin-bottom: 2px;
-}
-.card-visual__field-value {
-  font-size: 0.85rem; color: rgba(255,255,255,0.9);
-  font-weight: 500; letter-spacing: 0.05em;
-}
-.card-visual__brand { margin-left: auto; }
-.card-brand { font-weight: 900; letter-spacing: 0.05em; font-size: 1rem; }
-.card-brand--visa { color: #1a73e8; font-style: italic; }
-.card-brand--mc { color: #eb001b; }
-.card-brand--mir { color: #00a651; }
-
-/* Поля формы */
-.form-fields {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;
-}
-.field-wrap { display: flex; flex-direction: column; gap: 0.35rem; }
-.field-wrap--full { grid-column: 1 / -1; }
-.field-label {
-  font-size: 0.72rem; font-weight: 600;
-  color: var(--text-dim); letter-spacing: 0.05em;
-}
-.field-input {
-  padding: 0.65rem 0.9rem;
-  border-radius: 0.6rem;
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  color: var(--text); font-size: 0.9rem; outline: none;
-  transition: border-color 160ms ease;
-}
-.field-input:focus { border-color: var(--amber); }
-.field-input--error { border-color: #ef4444; }
-.field-input::placeholder { color: var(--text-fade); }
-.field-error { font-size: 0.72rem; color: #ef4444; }
-
-/* QR оплата */
-.qr-pay__box {
-  display: flex; gap: 1.25rem; align-items: flex-start;
-  margin-bottom: 1rem;
-}
-.qr-pay__img {
-  width: 110px; height: 110px; border-radius: 0.6rem;
-  border: 2px solid rgba(245,158,11,0.3); flex-shrink: 0;
-}
-.qr-pay__title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
-.qr-pay__sub { font-size: 0.82rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 0.75rem; }
-.qr-pay__apps { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-.qr-app-chip {
-  padding: 0.2rem 0.55rem; border-radius: 2rem;
-  background: var(--surface-soft); border: 1px solid var(--line);
-  color: var(--text-muted); font-size: 0.72rem; font-weight: 600;
-}
-.qr-pay__note {
-  display: flex; align-items: center; gap: 0.5rem;
-  padding: 0.65rem 0.9rem; border-radius: 0.6rem;
-  background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.2);
-  font-size: 0.78rem; color: var(--text-dim);
-}
-
-/* Безопасность */
-.security-note {
-  display: flex; align-items: center; gap: 0.5rem;
-  font-size: 0.75rem; color: var(--text-fade); padding: 0.5rem 0;
-}
-
-/* ── Итог заказа ── */
-.order-summary {
-  background: var(--bg-elev);
-  border: 1px solid var(--line);
-  border-radius: 1.2rem;
-  padding: 1.5rem;
-  box-shadow: var(--shadow-card);
-  position: sticky;
-  top: 96px;
-}
-.order-summary__title {
-  font-size: 0.7rem; font-weight: 700;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text-dim); margin-bottom: 1rem;
-}
-
-.order-movie { margin-bottom: 0.75rem; }
-.order-movie__name { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
-.order-movie__meta {
-  display: flex; flex-wrap: wrap; gap: 0.5rem;
-  font-size: 0.72rem; color: var(--text-dim);
-}
-.order-movie__meta span { display: inline-flex; align-items: center; gap: 0.25rem; }
-
-.order-divider { height: 1px; background: var(--line); margin: 0.85rem 0; }
-
-.order-seats-label { font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem; }
-.order-seats { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.5rem; }
-.order-seat-chip {
-  padding: 0.2rem 0.5rem; border-radius: 0.3rem;
-  background: rgba(245,158,11,0.13); border: 1px solid rgba(245,158,11,0.3);
-  color: var(--amber); font-size: 0.78rem; font-weight: 700;
-}
-
-.order-row {
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;
-}
-.order-row--service { color: var(--text-fade); font-size: 0.8rem; }
-.order-row--total {
-  font-size: 1rem; color: var(--text); font-weight: 700; margin-bottom: 0;
-}
-.order-row--total .display { color: var(--amber); font-size: 1.5rem; }
-
-/* Кнопка оплаты */
-.btn-pay {
-  width: 100%; margin-top: 1.25rem;
-  display: flex; align-items: center; justify-content: center; gap: 0.6rem;
-  padding: 0.9rem 1.5rem; border-radius: 0.75rem;
-  background: linear-gradient(135deg, var(--amber), var(--amber-dark));
-  color: #18181b; font-size: 1rem; font-weight: 700;
-  border: none; cursor: pointer;
-  transition: opacity 200ms ease, transform 150ms ease;
-  box-shadow: 0 4px 16px rgba(245,158,11,0.35);
-}
-.btn-pay:hover:not(:disabled) { transform: translateY(-1px); opacity: 0.95; }
-.btn-pay:disabled { opacity: 0.6; cursor: not-allowed; }
-
-.btn-pay__spinner {
-  width: 18px; height: 18px; border-radius: 50%;
-  border: 2px solid rgba(24,24,27,0.3);
-  border-top-color: #18181b;
-  animation: spin 0.7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.order-terms {
-  margin-top: 0.75rem; font-size: 0.68rem;
-  color: var(--text-fade); text-align: center; line-height: 1.5;
-}
-</style>

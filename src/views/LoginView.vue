@@ -20,17 +20,17 @@ const submit = (e: Event) => {
 </script>
 
 <template>
-  <section class="stage flex items-center justify-center" style="min-height: 100vh; padding: 120px 1rem 4rem">
-    <div class="auth-card">
+  <section class="stage flex min-h-screen items-center justify-center px-4 pb-16 pt-[120px]">
+    <div class="w-full max-w-[420px] rounded-2xl border border-line bg-panel p-8 shadow-[var(--shadow-card)]">
       <p class="eyebrow mb-2">{{ t('auth.login') }}</p>
-      <h1 class="display auth-card__title">
+      <h1 class="display mb-6 text-[1.8rem] text-copy">
         {{ t('auth.signInTitle') }}
       </h1>
 
       <form class="flex flex-col gap-4" @submit="submit">
-        <label class="field">
-          <span class="field__label">{{ t('auth.email') }}</span>
-          <div class="field__control">
+        <label class="flex flex-col gap-1.5">
+          <span class="text-[0.75rem] font-semibold uppercase tracking-[0.05em] text-dim">{{ t('auth.email') }}</span>
+          <div class="flex items-center gap-2.5 rounded-xl border border-line bg-surface-soft px-4 py-3 text-dim transition focus-within:border-brand/45 focus-within:bg-brand/5">
             <AppIcon name="mail" :size="16" />
             <input
               v-model="email"
@@ -38,13 +38,14 @@ const submit = (e: Event) => {
               required
               placeholder="name@example.com"
               autocomplete="email"
+              class="flex-1 border-0 bg-transparent text-[0.95rem] text-copy outline-none placeholder:text-fade"
             />
           </div>
         </label>
 
-        <label class="field">
-          <span class="field__label">{{ t('auth.password') }}</span>
-          <div class="field__control">
+        <label class="flex flex-col gap-1.5">
+          <span class="text-[0.75rem] font-semibold uppercase tracking-[0.05em] text-dim">{{ t('auth.password') }}</span>
+          <div class="flex items-center gap-2.5 rounded-xl border border-line bg-surface-soft px-4 py-3 text-dim transition focus-within:border-brand/45 focus-within:bg-brand/5">
             <AppIcon name="lock" :size="16" />
             <input
               v-model="password"
@@ -52,6 +53,7 @@ const submit = (e: Event) => {
               required
               :placeholder="t('auth.passwordPlaceholder')"
               autocomplete="current-password"
+              class="flex-1 border-0 bg-transparent text-[0.95rem] text-copy outline-none placeholder:text-fade"
             />
           </div>
         </label>
@@ -62,76 +64,12 @@ const submit = (e: Event) => {
         </button>
       </form>
 
-      <p class="auth-card__switch">
+      <p class="mt-6 text-center text-[0.85rem] text-dim">
         {{ t('auth.noAccount') }}
-        <RouterLink to="/register" class="auth-card__link">
+        <RouterLink to="/register" class="font-semibold text-brand">
           {{ t('auth.goRegister') }}
         </RouterLink>
       </p>
     </div>
   </section>
 </template>
-
-<style scoped>
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  background: var(--bg-elev);
-  border: 1px solid var(--line);
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: var(--shadow-card);
-}
-.auth-card__title {
-  color: var(--text);
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
-}
-.auth-card__switch {
-  margin-top: 1.5rem;
-  text-align: center;
-  color: var(--text-dim);
-  font-size: 0.85rem;
-}
-.auth-card__link {
-  color: var(--amber);
-  font-weight: 600;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-.field__label {
-  color: var(--text-dim);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.field__control {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.75rem 0.9rem;
-  border-radius: 0.6rem;
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  color: var(--text-dim);
-  transition: border-color 180ms ease, background 180ms ease;
-}
-.field__control:focus-within {
-  border-color: rgba(245, 158, 11, 0.45);
-  background: rgba(245, 158, 11, 0.05);
-}
-.field__control input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text);
-  font-size: 0.95rem;
-}
-.field__control input::placeholder { color: var(--text-fade); }
-</style>

@@ -12,7 +12,7 @@ const hideFooter = computed(() => route.name === 'booking-success' || route.name
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col app-shell">
+  <div class="min-h-screen flex flex-col bg-canvas text-copy">
     <AppHeader />
     <main class="flex-1">
       <RouterView v-slot="{ Component }">
@@ -24,10 +24,3 @@ const hideFooter = computed(() => route.name === 'booking-success' || route.name
     <AppFooter v-if="!hideFooter" />
   </div>
 </template>
-
-<style scoped>
-.app-shell {
-  background: var(--bg);
-  color: var(--text);
-}
-</style>

@@ -73,17 +73,17 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 
 <template>
   <header
-    class="fixed top-0 left-0 right-0 z-50 app-header"
-    :class="{ 'app-header--scrolled': scrolled }"
+    class="fixed inset-x-0 top-0 z-50 border-b border-transparent backdrop-blur-xl transition duration-300"
+    :class="scrolled ? 'border-line bg-canvas/95' : 'bg-canvas/70'"
   >
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <RouterLink to="/" class="flex items-center gap-2">
-          <div class="brand-mark">
+          <div class="grid h-9 w-9 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))]">
             <AppIcon name="film" :size="18" fill="#fff" />
           </div>
-          <span class="display brand-text">
-            <span class="brand-text__accent">CINE</span><span class="brand-text__plain">MA</span>
+          <span class="display text-[1.2rem] tracking-[0.14em]">
+            <span class="text-brand">CINE</span><span class="text-copy">MA</span>
           </span>
         </RouterLink>
 
@@ -92,8 +92,8 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
             v-for="link in navLinks"
             :key="link.to"
             :to="link.to"
-            class="nav-link"
-            active-class="nav-link--active"
+            class="text-sm font-medium text-muted transition hover:text-copy"
+            active-class="!text-brand"
           >
             {{ link.label }}
           </RouterLink>
@@ -101,7 +101,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 
         <div class="hidden md:flex items-center gap-3">
           <button
-            class="lang-toggle"
+            class="grid h-9 place-items-center rounded-lg border border-line bg-surface-soft px-3 text-[0.75rem] font-bold tracking-[0.08em] text-muted transition hover:border-brand hover:bg-surface-hover hover:text-brand"
             :aria-label="t('aria.languageToggle')"
             @click="cycleLocale"
           >
@@ -109,7 +109,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
           </button>
 
           <button
-            class="theme-toggle"
+            class="grid h-9 w-9 place-items-center rounded-lg border border-line bg-surface-soft text-muted transition hover:border-brand hover:bg-surface-hover hover:text-brand"
             :aria-label="theme === 'dark' ? t('aria.themeLight') : t('aria.themeDark')"
             @click="toggleTheme"
           >
@@ -118,37 +118,40 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 
           <!-- Авторизован: иконка профиля с дропдауном -->
           <template v-if="isAuthenticated">
-            <div class="profile-dropdown-wrap" ref="dropdownRef">
+            <div class="relative" ref="dropdownRef">
               <button
-                class="profile-avatar-btn"
-                :class="{ 'profile-avatar-btn--open': profileDropdownOpen }"
+                class="relative grid h-9 w-9 place-items-center rounded-full border-2 border-transparent bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))] transition duration-200"
+                :class="profileDropdownOpen ? 'scale-105 border-brand shadow-[0_0_0_3px_rgba(245,158,11,0.25)]' : 'hover:scale-105 hover:border-brand hover:shadow-[0_0_0_3px_rgba(245,158,11,0.25)]'"
                 :aria-label="'Профиль'"
                 @click="toggleProfileDropdown"
               >
-                <span class="profile-avatar-initials">{{ userInitials }}</span>
-                <span class="profile-avatar-pulse" />
+                <span class="pointer-events-none select-none text-[0.85rem] font-bold leading-none text-zinc-900">{{ userInitials }}</span>
+                <span class="absolute bottom-0 right-0 h-[9px] w-[9px] rounded-full border-2 border-canvas bg-success after:absolute after:-inset-[3px] after:rounded-full after:bg-success/40 after:content-[''] after:[animation:pulse-ring_2s_ease-out_infinite]" />
               </button>
 
               <transition name="dropdown">
-                <div v-if="profileDropdownOpen" class="profile-dropdown">
-                  <div class="profile-dropdown__header">
-                    <div class="profile-dropdown__avatar-lg">{{ userInitials }}</div>
+                <div
+                  v-if="profileDropdownOpen"
+                  class="absolute right-0 top-[calc(100%+10px)] z-[100] w-[230px] overflow-hidden rounded-2xl border border-line bg-panel shadow-[0_16px_48px_rgba(0,0,0,0.25),0_4px_16px_rgba(0,0,0,0.15)]"
+                >
+                  <div class="flex items-center gap-3 px-4 py-3.5">
+                    <div class="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))] text-base font-bold text-zinc-900">{{ userInitials }}</div>
                     <div>
-                      <div class="profile-dropdown__email">{{ currentUser?.email }}</div>
-                      <div class="profile-dropdown__badge">Авторизован</div>
+                      <div class="break-all text-[0.82rem] font-semibold text-copy">{{ currentUser?.email }}</div>
+                      <div class="mt-px text-[0.7rem] font-medium text-success">Авторизован</div>
                     </div>
                   </div>
-                  <div class="profile-dropdown__divider" />
-                  <RouterLink to="/profile" class="profile-dropdown__item">
+                  <div class="h-px bg-line" />
+                  <RouterLink to="/profile" class="flex items-center gap-2.5 px-4 py-3 text-[0.85rem] text-muted transition hover:bg-surface-soft hover:text-copy">
                     <AppIcon name="user" :size="15" />
                     Мой профиль
                   </RouterLink>
-                  <RouterLink to="/booking/success" class="profile-dropdown__item">
+                  <RouterLink to="/booking/success" class="flex items-center gap-2.5 px-4 py-3 text-[0.85rem] text-muted transition hover:bg-surface-soft hover:text-copy">
                     <AppIcon name="ticket" :size="15" />
                     Мои билеты
                   </RouterLink>
-                  <div class="profile-dropdown__divider" />
-                  <button class="profile-dropdown__item profile-dropdown__item--danger" @click="onLogout">
+                  <div class="h-px bg-line" />
+                  <button class="flex w-full items-center gap-2.5 bg-transparent px-4 py-3 text-left text-[0.85rem] text-muted transition hover:bg-danger/10 hover:text-danger" @click="onLogout">
                     <AppIcon name="log-out" :size="15" />
                     Выйти
                   </button>
@@ -159,21 +162,21 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 
           <!-- Не авторизован -->
           <template v-else>
-            <RouterLink to="/login" class="btn-compact-ghost">{{ t('auth.login') }}</RouterLink>
-            <RouterLink to="/register" class="btn-compact-amber">{{ t('auth.register') }}</RouterLink>
+            <RouterLink to="/login" class="rounded-lg border border-line-strong px-4 py-2 text-[0.85rem] font-medium text-muted transition hover:border-brand hover:text-copy">{{ t('auth.login') }}</RouterLink>
+            <RouterLink to="/register" class="inline-flex items-center rounded-lg bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))] px-4 py-2 text-[0.85rem] font-semibold text-zinc-900">{{ t('auth.register') }}</RouterLink>
           </template>
         </div>
 
         <div class="flex items-center gap-2 md:hidden">
           <button
-            class="lang-toggle"
+            class="grid h-9 place-items-center rounded-lg border border-line bg-surface-soft px-3 text-[0.75rem] font-bold tracking-[0.08em] text-muted transition hover:border-brand hover:bg-surface-hover hover:text-brand"
             :aria-label="t('aria.languageToggle')"
             @click="cycleLocale"
           >
             {{ localeLabel }}
           </button>
           <button
-            class="theme-toggle"
+            class="grid h-9 w-9 place-items-center rounded-lg border border-line bg-surface-soft text-muted transition hover:border-brand hover:bg-surface-hover hover:text-brand"
             :aria-label="theme === 'dark' ? t('aria.themeLight') : t('aria.themeDark')"
             @click="toggleTheme"
           >
@@ -182,13 +185,13 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 
           <!-- Мобильный: аватар профиля или меню -->
           <template v-if="isAuthenticated">
-            <RouterLink to="/profile" class="profile-avatar-btn profile-avatar-btn--sm">
-              <span class="profile-avatar-initials">{{ userInitials }}</span>
+            <RouterLink to="/profile" class="grid h-8 w-8 place-items-center rounded-full border-2 border-transparent bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))]">
+              <span class="pointer-events-none select-none text-[0.8rem] font-bold leading-none text-zinc-900">{{ userInitials }}</span>
             </RouterLink>
           </template>
 
           <button
-            class="menu-btn"
+            class="grid h-9 w-9 place-items-center rounded-lg border border-line bg-surface-soft text-copy transition hover:border-brand hover:bg-surface-hover hover:text-brand"
             :aria-label="menuOpen ? t('aria.menuClose') : t('aria.menuOpen')"
             @click="menuOpen = !menuOpen"
           >
@@ -200,35 +203,35 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 
     <div
       v-if="menuOpen"
-      class="md:hidden app-header__drawer"
+      class="border-t border-line bg-canvas/95 backdrop-blur-xl md:hidden"
     >
       <div class="px-4 py-5 flex flex-col gap-3">
         <RouterLink
           v-for="link in navLinks"
           :key="link.to"
           :to="link.to"
-          class="nav-link py-2"
-          active-class="nav-link--active"
+          class="py-2 text-sm font-medium text-muted transition hover:text-copy"
+          active-class="!text-brand"
         >
           {{ link.label }}
         </RouterLink>
-        <div class="pt-3 flex flex-col gap-2 app-header__drawer-foot">
+        <div class="flex flex-col gap-2 border-t border-line pt-3">
           <template v-if="isAuthenticated">
-            <RouterLink to="/profile" class="drawer-profile-link">
-              <div class="profile-avatar-btn profile-avatar-btn--sm">
-                <span class="profile-avatar-initials">{{ userInitials }}</span>
+            <RouterLink to="/profile" class="flex items-center gap-3 py-2.5">
+              <div class="grid h-8 w-8 place-items-center rounded-full border-2 border-transparent bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))]">
+                <span class="pointer-events-none select-none text-[0.8rem] font-bold leading-none text-zinc-900">{{ userInitials }}</span>
               </div>
               <div>
-                <div class="drawer-profile-email">{{ currentUser?.email }}</div>
-                <div class="drawer-profile-sub">Перейти в профиль →</div>
+                <div class="text-[0.82rem] font-semibold text-copy">{{ currentUser?.email }}</div>
+                <div class="mt-px text-[0.72rem] text-brand">Перейти в профиль →</div>
               </div>
             </RouterLink>
-            <button class="btn-compact-ghost w-full" @click="onLogout">{{ t('auth.logout') }}</button>
+            <button class="rounded-lg border border-line-strong px-4 py-2 text-[0.85rem] font-medium text-muted transition hover:border-brand hover:text-copy" @click="onLogout">{{ t('auth.logout') }}</button>
           </template>
           <template v-else>
-            <RouterLink to="/login" class="btn-compact-ghost w-full text-center">{{ t('auth.login') }}</RouterLink>
-            <RouterLink to="/register" class="btn-compact-amber w-full text-center">
-              {{ t('auth.register') }} lox
+            <RouterLink to="/login" class="rounded-lg border border-line-strong px-4 py-2 text-center text-[0.85rem] font-medium text-muted transition hover:border-brand hover:text-copy">{{ t('auth.login') }}</RouterLink>
+            <RouterLink to="/register" class="inline-flex items-center justify-center rounded-lg bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))] px-4 py-2 text-center text-[0.85rem] font-semibold text-zinc-900">
+              {{ t('auth.register') }}
             </RouterLink>
           </template>
         </div>
@@ -236,276 +239,3 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
     </div>
   </header>
 </template>
-
-<style scoped>
-.app-header {
-  background: color-mix(in srgb, var(--bg) 65%, transparent);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid transparent;
-  transition: background 280ms ease, border-color 280ms ease;
-}
-.app-header--scrolled {
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
-  border-bottom-color: var(--line);
-}
-
-.app-header__drawer {
-  background: color-mix(in srgb, var(--bg) 97%, transparent);
-  border-top: 1px solid var(--line);
-}
-.app-header__drawer-foot {
-  border-top: 1px solid var(--line);
-}
-
-.brand-mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 0.5rem;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, var(--amber), var(--amber-dark));
-}
-.brand-text {
-  font-size: 1.2rem;
-  letter-spacing: 0.14em;
-}
-.brand-text__accent { color: var(--amber); }
-.brand-text__plain { color: var(--text); }
-
-.nav-link {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: color 180ms ease;
-}
-.nav-link:hover { color: var(--text); }
-.nav-link--active { color: var(--amber); }
-
-.theme-toggle,
-.lang-toggle,
-.menu-btn {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 0.5rem;
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 180ms ease, background 180ms ease, border-color 180ms ease;
-}
-.theme-toggle:hover,
-.lang-toggle:hover,
-.menu-btn:hover {
-  color: var(--amber);
-  border-color: var(--amber);
-  background: var(--surface-hover);
-}
-
-.lang-toggle {
-  width: auto;
-  padding: 0 0.7rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  font-variant-numeric: tabular-nums;
-}
-
-.menu-btn { color: var(--text); }
-
-/* ── Аватар профиля ── */
-.profile-dropdown-wrap {
-  position: relative;
-}
-
-.profile-avatar-btn {
-  position: relative;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--amber), var(--amber-dark));
-  border: 2px solid transparent;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: border-color 200ms ease, box-shadow 200ms ease, transform 150ms ease;
-  overflow: visible;
-}
-.profile-avatar-btn:hover,
-.profile-avatar-btn--open {
-  border-color: var(--amber);
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
-  transform: scale(1.05);
-}
-.profile-avatar-btn--sm {
-  width: 32px;
-  height: 32px;
-}
-
-.profile-avatar-initials {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #18181b;
-  line-height: 1;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Пульсирующая точка "онлайн" */
-.profile-avatar-pulse {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #22c55e;
-  border: 2px solid var(--bg);
-}
-.profile-avatar-pulse::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  background: rgba(34, 197, 94, 0.4);
-  animation: pulse-ring 2s ease-out infinite;
-}
-
-@keyframes pulse-ring {
-  0%   { transform: scale(0.6); opacity: 0.8; }
-  100% { transform: scale(1.8); opacity: 0; }
-}
-
-/* ── Dropdown меню профиля ── */
-.profile-dropdown {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: 230px;
-  background: var(--bg-elev, var(--bg));
-  border: 1px solid var(--line);
-  border-radius: 0.9rem;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-  z-index: 100;
-}
-
-.profile-dropdown__header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.9rem 1rem;
-}
-
-.profile-dropdown__avatar-lg {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--amber), var(--amber-dark));
-  display: grid;
-  place-items: center;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #18181b;
-  flex-shrink: 0;
-}
-
-.profile-dropdown__email {
-  color: var(--text);
-  font-size: 0.82rem;
-  font-weight: 600;
-  word-break: break-all;
-}
-.profile-dropdown__badge {
-  margin-top: 2px;
-  font-size: 0.7rem;
-  color: #22c55e;
-  font-weight: 500;
-}
-
-.profile-dropdown__divider {
-  height: 1px;
-  background: var(--line);
-  margin: 0;
-}
-
-.profile-dropdown__item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  width: 100%;
-  padding: 0.7rem 1rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  transition: background 150ms ease, color 150ms ease;
-  text-decoration: none;
-}
-.profile-dropdown__item:hover {
-  background: var(--surface-soft);
-  color: var(--text);
-}
-.profile-dropdown__item--danger:hover {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.08);
-}
-
-/* Dropdown анимация */
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: opacity 180ms ease, transform 180ms ease;
-}
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-6px) scale(0.97);
-}
-
-/* ── Мобильный ящик: профиль ── */
-.drawer-profile-link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0;
-  text-decoration: none;
-}
-.drawer-profile-email {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text);
-}
-.drawer-profile-sub {
-  font-size: 0.72rem;
-  color: var(--amber);
-  margin-top: 1px;
-}
-
-/* ── Кнопки ── */
-.btn-compact-ghost {
-  padding: 0.45rem 0.95rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--line-strong);
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-weight: 500;
-  background: transparent;
-  transition: border-color 180ms ease, color 180ms ease;
-  cursor: pointer;
-}
-.btn-compact-ghost:hover { color: var(--text); border-color: var(--amber); }
-
-.btn-compact-amber {
-  padding: 0.45rem 0.95rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, var(--amber), var(--amber-dark));
-  color: #18181b;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-}
-</style>

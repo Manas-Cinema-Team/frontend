@@ -33,6 +33,7 @@ const total = computed(() => {
 const bookingCode = `CNM-${Math.random().toString(36).slice(2, 7).toUpperCase()}`
 const qrDataUrl = ref<string>('')
 const saved = ref(false)
+const perforationClass = "relative mx-6 h-px bg-[repeating-linear-gradient(90deg,var(--line-strong)_0,var(--line-strong)_8px,transparent_8px,transparent_14px)] before:absolute before:-left-8 before:top-1/2 before:h-5 before:w-5 before:-translate-y-1/2 before:rounded-full before:border before:border-line before:bg-canvas before:content-[''] after:absolute after:-right-8 after:top-1/2 after:h-5 after:w-5 after:-translate-y-1/2 after:rounded-full after:border after:border-line after:bg-canvas after:content-['']"
 
 // Генерация QR через публичный API (без зависимостей)
 const generateQR = async () => {
@@ -64,93 +65,100 @@ const printTicket = () => window.print()
 </script>
 
 <template>
-  <section class="stage no-print-bg" style="min-height: 100vh; padding-top: 120px">
+  <section class="stage no-print-bg min-h-screen pt-[120px]">
     <div class="max-w-xl mx-auto px-4 pb-16">
 
       <!-- Шапка успеха -->
       <div class="text-center mb-8 print-hidden">
-        <div class="success-mark">
+        <div class="mx-auto grid h-[72px] w-[72px] place-items-center rounded-full bg-brand shadow-[0_0_0_10px_rgba(245,158,11,0.12)]">
           <AppIcon name="check" :size="30" fill="#18181b" />
         </div>
         <p class="eyebrow mt-6 mb-2">{{ t('success.eyebrow') }}</p>
-        <h1 class="display page-title">{{ t('success.title') }}</h1>
+        <h1 class="display text-[clamp(1.75rem,4vw,2.5rem)] text-copy">{{ t('success.title') }}</h1>
       </div>
 
       <!-- Билет -->
-      <div class="ticket" id="print-ticket">
+      <div
+        id="print-ticket"
+        class="relative overflow-hidden rounded-[1.2rem] border border-line bg-panel shadow-[0_8px_40px_rgba(0,0,0,0.2),0_0_0_1px_rgba(245,158,11,0.1)] print:rounded-none print:border-2 print:border-black print:bg-white print:shadow-none"
+      >
 
         <!-- Перфорация верх -->
-        <div class="ticket__perforation ticket__perforation--top" />
+        <div :class="perforationClass" />
 
         <!-- Шапка билета -->
-        <div class="ticket__header">
+        <div class="flex items-start justify-between gap-4 bg-[linear-gradient(135deg,rgba(245,158,11,0.08)_0%,transparent_60%)] px-7 py-6 pb-5 print:bg-white">
           <div>
-            <div class="ticket__brand">🎬 CINEMA</div>
-            <div class="ticket__code-label">BOOKING CODE</div>
-            <div class="display ticket__code-value">{{ bookingCode }}</div>
+            <div class="mb-2 text-[0.75rem] font-extrabold tracking-[0.2em] text-brand print:text-black">🎬 CINEMA</div>
+            <div class="mb-1 text-[0.6rem] tracking-[0.2em] text-fade print:text-black">BOOKING CODE</div>
+            <div class="display text-[1.4rem] tracking-[0.15em] text-brand print:text-black">{{ bookingCode }}</div>
           </div>
           <!-- QR -->
-          <div class="ticket__qr">
+          <div class="shrink-0">
             <img
               v-if="qrDataUrl"
               :src="qrDataUrl"
               alt="QR-код билета"
-              class="ticket__qr-img"
+              class="h-[90px] w-[90px] rounded-lg border-2 border-brand/30 print:border-black"
             />
-            <div v-else class="ticket__qr-placeholder">
+            <div v-else class="grid h-[90px] w-[90px] place-items-center rounded-lg border border-line bg-surface-soft text-dim print:border-black print:bg-white print:text-black">
               <AppIcon name="loader" :size="24" />
             </div>
           </div>
         </div>
 
         <!-- Основной контент -->
-        <div class="ticket__body">
-          <h2 class="display ticket__title">
+        <div class="px-7 py-5 pb-6">
+          <h2 class="display mb-1 text-[1.5rem] text-copy print:text-black">
             {{ movie?.title ?? t('success.session') }}
           </h2>
-          <p v-if="hall" class="ticket__hall">
+          <p v-if="hall" class="mb-5 flex items-center gap-1.5 text-[0.82rem] text-dim print:text-black">
             <AppIcon name="map-pin" :size="13" />
             {{ hall.name }}
           </p>
 
-          <dl class="ticket__grid">
-            <div class="ticket__grid-item">
-              <dt>{{ t('success.date') }}</dt>
-              <dd>{{ session ? formatDateLabel(session.startDateTime.slice(0, 10)) : '—' }}</dd>
+          <dl class="grid grid-cols-2 gap-x-6 gap-y-4">
+            <div>
+              <dt class="mb-1 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-fade print:text-black">{{ t('success.date') }}</dt>
+              <dd class="text-[0.95rem] font-semibold text-copy print:text-black">{{ session ? formatDateLabel(session.startDateTime.slice(0, 10)) : '—' }}</dd>
             </div>
-            <div class="ticket__grid-item">
-              <dt>{{ t('success.time') }}</dt>
-              <dd class="ticket__time">{{ session ? formatTime(session.startDateTime) : '—' }}</dd>
+            <div>
+              <dt class="mb-1 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-fade print:text-black">{{ t('success.time') }}</dt>
+              <dd class="display text-[1.5rem] text-copy print:text-black">{{ session ? formatTime(session.startDateTime) : '—' }}</dd>
             </div>
-            <div class="ticket__grid-item ticket__grid-item--wide">
-              <dt>{{ t('success.seats') }}</dt>
+            <div class="col-span-2">
+              <dt class="mb-1 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-fade print:text-black">{{ t('success.seats') }}</dt>
               <dd>
-                <div class="ticket__seats">
-                  <span v-for="seat in seats" :key="seat" class="ticket__seat-chip">
+                <div class="mt-0.5 flex flex-wrap gap-1.5">
+                  <span
+                    v-for="seat in seats"
+                    :key="seat"
+                    class="rounded-md border border-brand/35 bg-brand/15 px-2.5 py-1 text-[0.82rem] font-bold text-brand print:border-black print:bg-zinc-100 print:text-black"
+                  >
                     {{ seat }}
                   </span>
                 </div>
               </dd>
             </div>
-            <div class="ticket__grid-item ticket__grid-item--wide">
-              <dt>{{ t('success.sum') }}</dt>
-              <dd class="ticket__total display">{{ formatPrice(total) }}</dd>
+            <div class="col-span-2">
+              <dt class="mb-1 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-fade print:text-black">{{ t('success.sum') }}</dt>
+              <dd class="display text-[1.6rem] text-brand print:text-black">{{ formatPrice(total) }}</dd>
             </div>
           </dl>
         </div>
 
         <!-- Перфорация низ -->
-        <div class="ticket__perforation ticket__perforation--bottom" />
+        <div :class="perforationClass" />
 
         <!-- Подвал -->
-        <div class="ticket__footer">
-          <span class="ticket__footer-text">Предъявите QR-код на входе</span>
-          <span class="ticket__footer-valid">Действителен только на дату сеанса</span>
+        <div class="flex items-center justify-between border-t border-line bg-surface-soft px-7 py-3 print:border-black print:bg-white">
+          <span class="text-[0.72rem] text-dim print:text-black">Предъявите QR-код на входе</span>
+          <span class="text-[0.68rem] text-fade print:text-black">Действителен только на дату сеанса</span>
         </div>
       </div>
 
       <!-- Кнопки действий -->
-      <div class="ticket-actions print-hidden">
+      <div class="mt-5 flex flex-wrap gap-3 print-hidden">
         <button class="btn-ghost" @click="printTicket">
           <AppIcon name="printer" :size="16" />
           Распечатать
@@ -167,216 +175,3 @@ const printTicket = () => window.print()
     </div>
   </section>
 </template>
-
-<style scoped>
-.page-title {
-  color: var(--text);
-  font-size: clamp(1.75rem, 4vw, 2.5rem);
-}
-
-/* ── Билет ── */
-.ticket {
-  background: var(--bg-elev);
-  border: 1px solid var(--line);
-  border-radius: 1.2rem;
-  overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(245,158,11,0.1);
-  position: relative;
-}
-
-/* Перфорация (пунктир с кружками) */
-.ticket__perforation {
-  height: 1px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--line-strong) 0,
-    var(--line-strong) 8px,
-    transparent 8px,
-    transparent 14px
-  );
-  position: relative;
-  margin: 0 1.5rem;
-}
-.ticket__perforation--top { margin-top: 0; }
-.ticket__perforation--bottom { margin-top: 0; }
-.ticket__perforation::before,
-.ticket__perforation::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--bg);
-  border: 1px solid var(--line);
-}
-.ticket__perforation::before { left: -2rem; }
-.ticket__perforation::after  { right: -2rem; }
-
-/* Шапка билета */
-.ticket__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.5rem 1.75rem 1.25rem;
-  background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, transparent 60%);
-}
-.ticket__brand {
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  color: var(--amber);
-  margin-bottom: 0.5rem;
-}
-.ticket__code-label {
-  color: var(--text-fade);
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  margin-bottom: 0.2rem;
-}
-.ticket__code-value {
-  color: var(--amber);
-  font-size: 1.4rem;
-  letter-spacing: 0.15em;
-}
-
-/* QR */
-.ticket__qr {
-  flex-shrink: 0;
-}
-.ticket__qr-img {
-  width: 90px;
-  height: 90px;
-  border-radius: 0.5rem;
-  border: 2px solid rgba(245,158,11,0.3);
-}
-.ticket__qr-placeholder {
-  width: 90px;
-  height: 90px;
-  border-radius: 0.5rem;
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  display: grid;
-  place-items: center;
-  color: var(--text-dim);
-}
-
-/* Тело */
-.ticket__body {
-  padding: 1.25rem 1.75rem 1.5rem;
-}
-.ticket__title {
-  color: var(--text);
-  font-size: 1.5rem;
-  margin-bottom: 0.3rem;
-}
-.ticket__hall {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--text-dim);
-  font-size: 0.82rem;
-  margin-bottom: 1.25rem;
-}
-
-.ticket__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem 1.5rem;
-}
-.ticket__grid-item dt {
-  color: var(--text-fade);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin-bottom: 0.3rem;
-}
-.ticket__grid-item dd {
-  color: var(--text);
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-.ticket__grid-item--wide {
-  grid-column: 1 / -1;
-}
-.ticket__time {
-  font-size: 1.5rem !important;
-  font-family: var(--font-display);
-}
-.ticket__total {
-  font-size: 1.6rem !important;
-  color: var(--amber) !important;
-}
-
-/* Места */
-.ticket__seats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.1rem;
-}
-.ticket__seat-chip {
-  padding: 0.2rem 0.6rem;
-  border-radius: 0.35rem;
-  background: rgba(245,158,11,0.15);
-  border: 1px solid rgba(245,158,11,0.35);
-  color: var(--amber);
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-/* Подвал */
-.ticket__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1.75rem;
-  background: var(--surface-soft);
-  border-top: 1px solid var(--line);
-}
-.ticket__footer-text {
-  font-size: 0.72rem;
-  color: var(--text-dim);
-}
-.ticket__footer-valid {
-  font-size: 0.68rem;
-  color: var(--text-fade);
-}
-
-/* Кнопки под билетом */
-.ticket-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-  flex-wrap: wrap;
-}
-.ticket-actions > * {
-  flex: 1;
-  justify-content: center;
-  min-width: 120px;
-}
-
-/* ── Печать ── */
-@media print {
-  .print-hidden { display: none !important; }
-
-  .ticket {
-    border: 2px solid #000;
-    box-shadow: none;
-    border-radius: 0;
-    color: #000 !important;
-    background: #fff !important;
-  }
-  .ticket__code-value,
-  .ticket__total { color: #000 !important; }
-  .ticket__seat-chip {
-    border: 1px solid #000;
-    color: #000 !important;
-    background: #eee !important;
-  }
-  .ticket__qr-img { border: 1px solid #000; }
-}
-</style>
