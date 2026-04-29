@@ -16,12 +16,18 @@ const posterFailed = ref(false)
 </script>
 
 <template>
-  <article class="movie-card" @click="open">
-    <div class="movie-card__poster" style="aspect-ratio: 2 / 3">
-      <div v-if="posterFailed" class="movie-card__fallback">
-        <div class="movie-card__fallback-grid" />
+  <article
+    class="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-line bg-panel shadow-[var(--shadow-card)] transition duration-200 hover:-translate-y-0.5 hover:border-brand"
+    @click="open"
+  >
+    <div class="relative aspect-[2/3] overflow-hidden bg-panel-2">
+      <div
+        v-if="posterFailed"
+        class="absolute inset-0 flex flex-col items-center justify-center gap-2.5 bg-[radial-gradient(ellipse_at_50%_30%,rgba(245,158,11,0.18),transparent_60%),var(--bg-elev-2)] p-4 text-center"
+      >
+        <div class="absolute inset-0 bg-[linear-gradient(var(--line)_1px,transparent_1px),linear-gradient(90deg,var(--line)_1px,transparent_1px)] bg-[size:28px_28px] opacity-60" />
         <AppIcon name="film" :size="36" fill="rgba(245,158,11,0.45)" />
-        <span class="display movie-card__fallback-title">
+        <span class="display text-[1.1rem] tracking-[0.06em] text-copy">
           {{ movie.title }}
         </span>
       </div>
@@ -32,111 +38,19 @@ const posterFailed = ref(false)
         loading="lazy"
         @error="posterFailed = true"
       />
-      <span class="movie-card__rating">{{ movie.ageRating }}</span>
+      <span class="absolute right-2 top-2 rounded border border-line bg-black/35 px-2 py-0.5 text-[0.7rem] font-semibold text-copy backdrop-blur-sm">
+        {{ movie.ageRating }}
+      </span>
     </div>
 
-    <div class="movie-card__body">
-      <h3 class="movie-card__title">{{ movie.title }}</h3>
-      <div class="movie-card__meta">
+    <div class="px-4 pb-4 pt-3.5">
+      <h3 class="mb-1.5 truncate text-[0.95rem] font-semibold text-copy">{{ movie.title }}</h3>
+      <div class="flex items-center gap-1.5 text-[0.78rem] text-dim">
         <AppIcon name="clock" :size="12" />
         <span>{{ formatDuration(movie.duration) }}</span>
-        <span class="movie-card__sep">·</span>
+        <span class="text-line-strong">·</span>
         <span>{{ movie.genre[0] }}</span>
       </div>
     </div>
   </article>
 </template>
-
-<style scoped>
-.movie-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-elev);
-  border: 1px solid var(--line);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 200ms ease, transform 200ms ease;
-  box-shadow: var(--shadow-card);
-}
-.movie-card:hover {
-  border-color: var(--amber);
-  transform: translateY(-3px);
-}
-
-.movie-card__poster {
-  position: relative;
-  background: var(--bg-elev-2);
-  overflow: hidden;
-}
-.movie-card__poster img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.movie-card__fallback {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  text-align: center;
-  background:
-    radial-gradient(ellipse at 50% 30%, rgba(245, 158, 11, 0.18), transparent 60%),
-    var(--bg-elev-2);
-}
-.movie-card__fallback-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: 28px 28px;
-  opacity: 0.6;
-}
-.movie-card__fallback-title {
-  color: var(--text);
-  font-size: 1.1rem;
-  letter-spacing: 0.06em;
-}
-
-.movie-card__rating {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--bg) 75%, transparent);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--line);
-  color: var(--text);
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
-.movie-card__body {
-  padding: 0.85rem 0.95rem 1rem;
-}
-.movie-card__title {
-  color: var(--text);
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 0.35rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.movie-card__meta {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: var(--text-dim);
-  font-size: 0.78rem;
-}
-.movie-card__sep { color: var(--line-strong); }
-</style>

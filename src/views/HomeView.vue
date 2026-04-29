@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 
 import AppIcon from '@/components/AppIcon.vue'
 import MovieCard from '@/components/MovieCard.vue'
+import MovieCarousel from '@/components/MovieCarousel.vue'
 import {
   formatDateLabel,
   formatPrice,
@@ -13,6 +14,9 @@ import {
 } from '@/data/cinema'
 import { t } from '@/stores/i18n'
 
+// Берём первые 5 фильмов для карусели (популярные)
+const carouselMovies = computed(() => movies.slice(0, 5))
+
 const featured = computed(() => movies.slice(0, 4))
 const soon = computed(() => upcomingSessions(5))
 </script>
@@ -20,15 +24,15 @@ const soon = computed(() => upcomingSessions(5))
 <template>
   <div>
     <!-- Hero -->
-    <section class="stage relative overflow-hidden" style="min-height: 70vh; padding-top: 96px">
+    <section class="stage relative min-h-[70vh] overflow-hidden pt-24">
       <div class="spotlight" />
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
         <p class="eyebrow mb-3">{{ t('home.welcome') }}</p>
-        <h1 class="display hero-title">
+        <h1 class="display mb-5 text-[clamp(2.5rem,6vw,4.5rem)] leading-none text-copy">
           {{ t('home.heroLine1') }}<br />
-          {{ t('home.heroConnector') }} <span class="hero-title__accent">{{ t('home.heroLine2') }}</span>
+          {{ t('home.heroConnector') }} <span class="text-brand">{{ t('home.heroLine2') }}</span>
         </h1>
-        <p class="hero-sub">
+        <p class="mb-8 max-w-3xl text-base leading-7 text-muted">
           {{ t('home.heroSub') }}
         </p>
         <div class="flex flex-wrap gap-3">
@@ -44,13 +48,30 @@ const soon = computed(() => upcomingSessions(5))
       </div>
     </section>
 
+    <!-- ── Карусель популярных фильмов ── -->
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="flex items-end justify-between mb-6 gap-4">
+        <div>
+          <h2 class="display text-[clamp(1.5rem,3vw,2rem)] text-copy">
+            🔥 Популярные фильмы
+          </h2>
+          <p class="mt-1 text-[0.82rem] text-dim">Хиты, которые сейчас смотрят все</p>
+        </div>
+        <RouterLink to="/movies" class="inline-flex items-center gap-1 text-sm font-semibold text-brand">
+          Все фильмы
+          <AppIcon name="chevron-right" :size="14" />
+        </RouterLink>
+      </div>
+      <MovieCarousel :movies="carouselMovies" />
+    </section>
+
     <!-- Afisha preview -->
     <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="flex items-end justify-between mb-6 gap-4">
-        <h2 class="display section-title">
+        <h2 class="display text-[clamp(1.5rem,3vw,2rem)] text-copy">
           {{ t('home.nowShowing') }}
         </h2>
-        <RouterLink to="/movies" class="link-more">
+        <RouterLink to="/movies" class="inline-flex items-center gap-1 text-sm font-semibold text-brand">
           {{ t('home.allMovies') }}
           <AppIcon name="chevron-right" :size="14" />
         </RouterLink>
@@ -63,10 +84,10 @@ const soon = computed(() => upcomingSessions(5))
     <!-- Upcoming sessions -->
     <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="flex items-end justify-between mb-6 gap-4">
-        <h2 class="display section-title">
+        <h2 class="display text-[clamp(1.5rem,3vw,2rem)] text-copy">
           {{ t('home.upcoming') }}
         </h2>
-        <RouterLink to="/schedule" class="link-more">
+        <RouterLink to="/schedule" class="inline-flex items-center gap-1 text-sm font-semibold text-brand">
           {{ t('home.fullSchedule') }}
           <AppIcon name="chevron-right" :size="14" />
         </RouterLink>
@@ -77,114 +98,30 @@ const soon = computed(() => upcomingSessions(5))
           v-for="item in soon"
           :key="item.session.id"
           :to="`/sessions/${item.session.id}/seats`"
-          class="session-row"
+          class="grid grid-cols-[80px_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-line bg-panel px-4 py-3 text-muted shadow-[var(--shadow-card)] transition duration-200 hover:translate-x-0.5 hover:border-brand sm:grid-cols-[120px_minmax(0,1fr)_auto_auto]"
         >
-          <div class="session-row__time">
-            <span class="session-row__clock">
+          <div class="flex flex-col">
+            <span class="display text-[1.3rem] tracking-[0.04em] text-copy">
               {{ formatTime(item.session.startDateTime) }}
             </span>
-            <span class="session-row__date">
+            <span class="text-[0.75rem] text-dim">
               {{ formatDateLabel(item.date) }}
             </span>
           </div>
-          <div class="session-row__info">
-            <div class="session-row__title">
+          <div class="min-w-0">
+            <div class="text-[0.95rem] font-semibold text-copy">
               {{ item.movie.title }}
             </div>
-            <div class="session-row__sub">
+            <div class="text-[0.78rem] text-dim">
               {{ item.hall.name }}
             </div>
           </div>
-          <div class="session-row__price">
+          <div class="whitespace-nowrap text-sm font-bold text-brand">
             {{ formatPrice(item.session.price) }}
           </div>
-          <AppIcon name="chevron-right" :size="16" />
+          <AppIcon name="chevron-right" :size="16" class="hidden sm:block" />
         </RouterLink>
       </div>
     </section>
   </div>
 </template>
-
-<style scoped>
-.hero-title {
-  color: var(--text);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-  line-height: 1;
-  margin-bottom: 1.25rem;
-}
-.hero-title__accent { color: var(--amber); }
-
-.hero-sub {
-  color: var(--text-muted);
-  font-size: 1rem;
-  line-height: 1.6;
-  max-width: 36rem;
-  margin-bottom: 2rem;
-}
-
-.section-title {
-  color: var(--text);
-  font-size: clamp(1.5rem, 3vw, 2rem);
-}
-
-.link-more {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  color: var(--amber);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.session-row {
-  display: grid;
-  grid-template-columns: 120px 1fr auto auto;
-  gap: 1rem;
-  align-items: center;
-  padding: 0.9rem 1rem;
-  border-radius: 0.75rem;
-  background: var(--bg-elev);
-  border: 1px solid var(--line);
-  color: var(--text-muted);
-  box-shadow: var(--shadow-card);
-  transition: border-color 180ms ease, transform 180ms ease;
-}
-.session-row:hover {
-  border-color: var(--amber);
-  transform: translateX(3px);
-}
-.session-row__time { display: flex; flex-direction: column; }
-.session-row__clock {
-  font-family: var(--font-display);
-  letter-spacing: 0.04em;
-  color: var(--text);
-  font-size: 1.3rem;
-}
-.session-row__date {
-  color: var(--text-dim);
-  font-size: 0.75rem;
-}
-.session-row__info { min-width: 0; }
-.session-row__title {
-  color: var(--text);
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-.session-row__sub {
-  color: var(--text-dim);
-  font-size: 0.78rem;
-}
-.session-row__price {
-  color: var(--amber);
-  font-weight: 700;
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-
-@media (max-width: 640px) {
-  .session-row {
-    grid-template-columns: 80px 1fr auto;
-  }
-  .session-row svg:last-child { display: none; }
-}
-</style>

@@ -39,21 +39,51 @@ const onLogout = () => {
   logout()
   router.push('/')
 }
+
+// Инициалы пользователя для аватара
+const userInitials = computed(() => {
+  const email = currentUser.value?.email
+  if (!email) return '?'
+  return email.charAt(0).toUpperCase()
+})
+
+// Dropdown профиля
+const profileDropdownOpen = ref(false)
+const toggleProfileDropdown = () => {
+  profileDropdownOpen.value = !profileDropdownOpen.value
+}
+
+watch(
+  () => route.fullPath,
+  () => {
+    profileDropdownOpen.value = false
+  },
+)
+
+// Закрыть dropdown при клике вне
+const dropdownRef = ref<HTMLElement | null>(null)
+const onClickOutside = (e: MouseEvent) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(e.target as Node)) {
+    profileDropdownOpen.value = false
+  }
+}
+onMounted(() => document.addEventListener('mousedown', onClickOutside))
+onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 </script>
 
 <template>
   <header
-    class="fixed top-0 left-0 right-0 z-50 app-header"
-    :class="{ 'app-header--scrolled': scrolled }"
+    class="fixed inset-x-0 top-0 z-50 border-b border-transparent backdrop-blur-xl transition duration-300"
+    :class="scrolled ? 'border-line bg-canvas/95' : 'bg-canvas/70'"
   >
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <RouterLink to="/" class="flex items-center gap-2">
-          <div class="brand-mark">
+          <div class="grid h-9 w-9 place-items-center rounded-lg bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))]">
             <AppIcon name="film" :size="18" fill="#fff" />
           </div>
-          <span class="display brand-text">
-            <span class="brand-text__accent">CINE</span><span class="brand-text__plain">MA</span>
+          <span class="display text-[1.2rem] tracking-[0.14em]">
+            <span class="text-brand">CINE</span><span class="text-copy">MA</span>
           </span>
         </RouterLink>
 
@@ -62,8 +92,8 @@ const onLogout = () => {
             v-for="link in navLinks"
             :key="link.to"
             :to="link.to"
-            class="nav-link"
-            active-class="nav-link--active"
+            class="text-sm font-medium text-muted transition hover:text-copy"
+            active-class="!text-brand"
           >
             {{ link.label }}
           </RouterLink>
@@ -71,7 +101,7 @@ const onLogout = () => {
 
         <div class="hidden md:flex items-center gap-3">
           <button
-            class="lang-toggle"
+            class="grid h-9 place-items-center rounded-lg border border-line bg-surface-soft px-3 text-[0.75rem] font-bold tracking-[0.08em] text-muted transition hover:border-brand hover:bg-surface-hover hover:text-brand"
             :aria-label="t('aria.languageToggle')"
             @click="cycleLocale"
           >
@@ -79,44 +109,89 @@ const onLogout = () => {
           </button>
 
           <button
-            class="theme-toggle"
+            class="grid h-9 w-9 place-items-center rounded-lg border border-line bg-surface-soft text-muted transition hover:border-brand hover:bg-surface-hover hover:text-brand"
             :aria-label="theme === 'dark' ? t('aria.themeLight') : t('aria.themeDark')"
             @click="toggleTheme"
           >
             <AppIcon :name="theme === 'dark' ? 'sun' : 'moon'" :size="18" />
           </button>
 
+          <!-- Авторизован: иконка профиля с дропдауном -->
           <template v-if="isAuthenticated">
-            <span class="header-email">
-              {{ currentUser?.email }}
-            </span>
-            <button class="btn-compact-ghost" @click="onLogout">
-              {{ t('auth.logout') }}
-            </button>
+            <div class="relative" ref="dropdownRef">
+              <button
+                class="relative grid h-9 w-9 place-items-center rounded-full border-2 border-transparent bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))] transition duration-200"
+                :class="profileDropdownOpen ? 'scale-105 border-brand shadow-[0_0_0_3px_rgba(245,158,11,0.25)]' : 'hover:scale-105 hover:border-brand hover:shadow-[0_0_0_3px_rgba(245,158,11,0.25)]'"
+                :aria-label="'Профиль'"
+                @click="toggleProfileDropdown"
+              >
+                <span class="pointer-events-none select-none text-[0.85rem] font-bold leading-none text-zinc-900">{{ userInitials }}</span>
+                <span class="absolute bottom-0 right-0 h-[9px] w-[9px] rounded-full border-2 border-canvas bg-success after:absolute after:-inset-[3px] after:rounded-full after:bg-success/40 after:content-[''] after:[animation:pulse-ring_2s_ease-out_infinite]" />
+              </button>
+
+              <transition name="dropdown">
+                <div
+                  v-if="profileDropdownOpen"
+                  class="absolute right-0 top-[calc(100%+10px)] z-[100] w-[230px] overflow-hidden rounded-2xl border border-line bg-panel shadow-[0_16px_48px_rgba(0,0,0,0.25),0_4px_16px_rgba(0,0,0,0.15)]"
+                >
+                  <div class="flex items-center gap-3 px-4 py-3.5">
+                    <div class="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))] text-base font-bold text-zinc-900">{{ userInitials }}</div>
+                    <div>
+                      <div class="break-all text-[0.82rem] font-semibold text-copy">{{ currentUser?.email }}</div>
+                      <div class="mt-px text-[0.7rem] font-medium text-success">Авторизован</div>
+                    </div>
+                  </div>
+                  <div class="h-px bg-line" />
+                  <RouterLink to="/profile" class="flex items-center gap-2.5 px-4 py-3 text-[0.85rem] text-muted transition hover:bg-surface-soft hover:text-copy">
+                    <AppIcon name="user" :size="15" />
+                    Мой профиль
+                  </RouterLink>
+                  <RouterLink to="/booking/success" class="flex items-center gap-2.5 px-4 py-3 text-[0.85rem] text-muted transition hover:bg-surface-soft hover:text-copy">
+                    <AppIcon name="ticket" :size="15" />
+                    Мои билеты
+                  </RouterLink>
+                  <div class="h-px bg-line" />
+                  <button class="flex w-full items-center gap-2.5 bg-transparent px-4 py-3 text-left text-[0.85rem] text-muted transition hover:bg-danger/10 hover:text-danger" @click="onLogout">
+                    <AppIcon name="log-out" :size="15" />
+                    Выйти
+                  </button>
+                </div>
+              </transition>
+            </div>
           </template>
+
+          <!-- Не авторизован -->
           <template v-else>
-            <RouterLink to="/login" class="btn-compact-ghost">{{ t('auth.login') }}</RouterLink>
-            <RouterLink to="/register" class="btn-compact-amber">{{ t('auth.register') }}</RouterLink>
+            <RouterLink to="/login" class="rounded-lg border border-line-strong px-4 py-2 text-[0.85rem] font-medium text-muted transition hover:border-brand hover:text-copy">{{ t('auth.login') }}</RouterLink>
+            <RouterLink to="/register" class="inline-flex items-center rounded-lg bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))] px-4 py-2 text-[0.85rem] font-semibold text-zinc-900">{{ t('auth.register') }}</RouterLink>
           </template>
         </div>
 
         <div class="flex items-center gap-2 md:hidden">
           <button
-            class="lang-toggle"
+            class="grid h-9 place-items-center rounded-lg border border-line bg-surface-soft px-3 text-[0.75rem] font-bold tracking-[0.08em] text-muted transition hover:border-brand hover:bg-surface-hover hover:text-brand"
             :aria-label="t('aria.languageToggle')"
             @click="cycleLocale"
           >
             {{ localeLabel }}
           </button>
           <button
-            class="theme-toggle"
+            class="grid h-9 w-9 place-items-center rounded-lg border border-line bg-surface-soft text-muted transition hover:border-brand hover:bg-surface-hover hover:text-brand"
             :aria-label="theme === 'dark' ? t('aria.themeLight') : t('aria.themeDark')"
             @click="toggleTheme"
           >
             <AppIcon :name="theme === 'dark' ? 'sun' : 'moon'" :size="18" />
           </button>
+
+          <!-- Мобильный: аватар профиля или меню -->
+          <template v-if="isAuthenticated">
+            <RouterLink to="/profile" class="grid h-8 w-8 place-items-center rounded-full border-2 border-transparent bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))]">
+              <span class="pointer-events-none select-none text-[0.8rem] font-bold leading-none text-zinc-900">{{ userInitials }}</span>
+            </RouterLink>
+          </template>
+
           <button
-            class="menu-btn"
+            class="grid h-9 w-9 place-items-center rounded-lg border border-line bg-surface-soft text-copy transition hover:border-brand hover:bg-surface-hover hover:text-brand"
             :aria-label="menuOpen ? t('aria.menuClose') : t('aria.menuOpen')"
             @click="menuOpen = !menuOpen"
           >
@@ -128,26 +203,34 @@ const onLogout = () => {
 
     <div
       v-if="menuOpen"
-      class="md:hidden app-header__drawer"
+      class="border-t border-line bg-canvas/95 backdrop-blur-xl md:hidden"
     >
       <div class="px-4 py-5 flex flex-col gap-3">
         <RouterLink
           v-for="link in navLinks"
           :key="link.to"
           :to="link.to"
-          class="nav-link py-2"
-          active-class="nav-link--active"
+          class="py-2 text-sm font-medium text-muted transition hover:text-copy"
+          active-class="!text-brand"
         >
           {{ link.label }}
         </RouterLink>
-        <div class="pt-3 flex flex-col gap-2 app-header__drawer-foot">
+        <div class="flex flex-col gap-2 border-t border-line pt-3">
           <template v-if="isAuthenticated">
-            <span class="header-email">{{ currentUser?.email }}</span>
-            <button class="btn-compact-ghost w-full" @click="onLogout">{{ t('auth.logout') }}</button>
+            <RouterLink to="/profile" class="flex items-center gap-3 py-2.5">
+              <div class="grid h-8 w-8 place-items-center rounded-full border-2 border-transparent bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))]">
+                <span class="pointer-events-none select-none text-[0.8rem] font-bold leading-none text-zinc-900">{{ userInitials }}</span>
+              </div>
+              <div>
+                <div class="text-[0.82rem] font-semibold text-copy">{{ currentUser?.email }}</div>
+                <div class="mt-px text-[0.72rem] text-brand">Перейти в профиль →</div>
+              </div>
+            </RouterLink>
+            <button class="rounded-lg border border-line-strong px-4 py-2 text-[0.85rem] font-medium text-muted transition hover:border-brand hover:text-copy" @click="onLogout">{{ t('auth.logout') }}</button>
           </template>
           <template v-else>
-            <RouterLink to="/login" class="btn-compact-ghost w-full text-center">{{ t('auth.login') }}</RouterLink>
-            <RouterLink to="/register" class="btn-compact-amber w-full text-center">
+            <RouterLink to="/login" class="rounded-lg border border-line-strong px-4 py-2 text-center text-[0.85rem] font-medium text-muted transition hover:border-brand hover:text-copy">{{ t('auth.login') }}</RouterLink>
+            <RouterLink to="/register" class="inline-flex items-center justify-center rounded-lg bg-[linear-gradient(135deg,var(--amber),var(--amber-dark))] px-4 py-2 text-center text-[0.85rem] font-semibold text-zinc-900">
               {{ t('auth.register') }}
             </RouterLink>
           </template>
@@ -156,110 +239,3 @@ const onLogout = () => {
     </div>
   </header>
 </template>
-
-<style scoped>
-.app-header {
-  background: color-mix(in srgb, var(--bg) 65%, transparent);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid transparent;
-  transition: background 280ms ease, border-color 280ms ease;
-}
-.app-header--scrolled {
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
-  border-bottom-color: var(--line);
-}
-
-.app-header__drawer {
-  background: color-mix(in srgb, var(--bg) 97%, transparent);
-  border-top: 1px solid var(--line);
-}
-.app-header__drawer-foot {
-  border-top: 1px solid var(--line);
-}
-
-.brand-mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 0.5rem;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, var(--amber), var(--amber-dark));
-}
-.brand-text {
-  font-size: 1.2rem;
-  letter-spacing: 0.14em;
-}
-.brand-text__accent { color: var(--amber); }
-.brand-text__plain { color: var(--text); }
-
-.header-email {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
-
-.nav-link {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: color 180ms ease;
-}
-.nav-link:hover { color: var(--text); }
-.nav-link--active { color: var(--amber); }
-
-.theme-toggle,
-.lang-toggle,
-.menu-btn {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 0.5rem;
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 180ms ease, background 180ms ease, border-color 180ms ease;
-}
-.theme-toggle:hover,
-.lang-toggle:hover,
-.menu-btn:hover {
-  color: var(--amber);
-  border-color: var(--amber);
-  background: var(--surface-hover);
-}
-
-.lang-toggle {
-  width: auto;
-  padding: 0 0.7rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  font-variant-numeric: tabular-nums;
-}
-
-.menu-btn { color: var(--text); }
-
-.btn-compact-ghost {
-  padding: 0.45rem 0.95rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--line-strong);
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-weight: 500;
-  background: transparent;
-  transition: border-color 180ms ease, color 180ms ease;
-  cursor: pointer;
-}
-.btn-compact-ghost:hover { color: var(--text); border-color: var(--amber); }
-
-.btn-compact-amber {
-  padding: 0.45rem 0.95rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, var(--amber), var(--amber-dark));
-  color: #18181b;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-}
-</style>
