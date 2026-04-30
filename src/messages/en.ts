@@ -155,7 +155,6 @@ const en: Dict = {
   'profile.user': 'User',
   'profile.sessionState': 'Session state',
   'profile.sessionActive': 'Active in this browser',
-  'profile.localHistoryNote': 'Ticket history is stored locally in this browser and is now separated for each account.',
   'profile.confirmRemove': 'Remove this ticket from history?',
   'profile.noTicketsTitle': 'No tickets yet',
   'profile.noTicketsText': 'Pick a movie and book a seat right now',
@@ -196,6 +195,7 @@ const en: Dict = {
   'payment.qrLabel': 'QR payment',
   'payment.qrTitle': 'Confirm payment in your banking app',
   'payment.qrText': 'After payment, press the button below. The backend will confirm the booking via `/bookings/{id}/confirm/`.',
+  'payment.qrAlt': 'Payment QR code',
   'payment.devHint': 'This form uses a real backend booking while payment confirmation follows a mock flow for development.',
   'payment.processing': 'Confirming...',
   'payment.payAction': 'Pay {amount}',
@@ -216,6 +216,15 @@ const en: Dict = {
 
   'notfound.text': 'Page not found.',
   'date.today': 'Today',
+
+  'errors.seatHeld': 'This seat is already held by another user.',
+  'errors.holdExpired': 'Seat hold has expired. Please pick seats again.',
+  'errors.bookingNotActive': 'This booking is no longer active.',
+  'errors.activeHoldExists': 'You already have an active hold for this session.',
+  'errors.seatUnavailable': 'This seat is not available for booking.',
+  'errors.sessionNotFound': 'Session not found.',
+  'errors.bookingNotFound': 'Booking not found.',
+  'errors.paymentFailed': 'Could not confirm the payment.',
 }
 
 export default en

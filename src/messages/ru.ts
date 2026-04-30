@@ -155,7 +155,6 @@ const ru: Dict = {
   'profile.user': 'Пользователь',
   'profile.sessionState': 'Состояние сессии',
   'profile.sessionActive': 'Активна в этом браузере',
-  'profile.localHistoryNote': 'История билетов хранится локально в этом браузере и теперь разделена по аккаунтам.',
   'profile.confirmRemove': 'Удалить этот билет из истории?',
   'profile.noTicketsTitle': 'Билетов пока нет',
   'profile.noTicketsText': 'Выберите фильм и забронируйте место прямо сейчас',
@@ -196,6 +195,7 @@ const ru: Dict = {
   'payment.qrLabel': 'Оплата по QR-коду',
   'payment.qrTitle': 'Подтвердите оплату в мобильном банке',
   'payment.qrText': 'После оплаты нажмите кнопку ниже. Backend подтвердит бронь через `/bookings/{id}/confirm/`.',
+  'payment.qrAlt': 'QR-код для оплаты',
   'payment.devHint': 'Форма использует реальную бронь backend, а подтверждение платежа проходит mock-flow для dev.',
   'payment.processing': 'Подтверждение...',
   'payment.payAction': 'Оплатить {amount}',
@@ -216,6 +216,15 @@ const ru: Dict = {
 
   'notfound.text': 'Страница не найдена.',
   'date.today': 'Сегодня',
+
+  'errors.seatHeld': 'Это место уже удерживает другой пользователь.',
+  'errors.holdExpired': 'Время удержания мест истекло. Выберите места заново.',
+  'errors.bookingNotActive': 'Бронь больше не активна.',
+  'errors.activeHoldExists': 'У вас уже есть активная бронь на этот сеанс.',
+  'errors.seatUnavailable': 'Место недоступно для бронирования.',
+  'errors.sessionNotFound': 'Сеанс не найден.',
+  'errors.bookingNotFound': 'Бронь не найдена.',
+  'errors.paymentFailed': 'Не удалось подтвердить оплату.',
 }
 
 export default ru

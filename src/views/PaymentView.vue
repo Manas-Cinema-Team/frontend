@@ -56,6 +56,22 @@ const seatItems = computed(() =>
 )
 
 const currency = computed(() => booking.value?.currency || 'KGS')
+
+const qrPayload = computed(() => {
+  if (!booking.value) return ''
+  return [
+    'CINEMA-PAY',
+    `id=${booking.value.id}`,
+    `amount=${booking.value.totalAmount}`,
+    `currency=${booking.value.currency}`,
+  ].join('|')
+})
+
+const qrImage = computed(() => {
+  if (!qrPayload.value) return ''
+  const data = encodeURIComponent(qrPayload.value)
+  return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${data}`
+})
 const isPaid = computed(() => booking.value?.bookingStatus === 'confirmed' || booking.value?.paymentStatus === 'paid')
 const isExpired = computed(() => booking.value?.bookingStatus === 'expired' || (booking.value?.bookingStatus === 'draft' && secondsLeft.value === 0))
 const isCancelled = computed(() => booking.value?.bookingStatus === 'cancelled')
@@ -299,18 +315,18 @@ onUnmounted(() => {
 
             <div v-if="payMethod === 'card'" :class="panelClass" class="mb-4">
               <div :class="panelLabelClass">{{ t('payment.cardDetails') }}</div>
-              <div class="relative mb-5 flex min-h-[160px] flex-col justify-between overflow-hidden rounded-2xl border border-brand/20 bg-[linear-gradient(135deg,#1e293b_0%,#0f172a_100%)] px-6 py-5 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+              <div class="card-preview relative mb-5 flex min-h-[160px] flex-col justify-between overflow-hidden rounded-2xl border border-brand/20 bg-[linear-gradient(135deg,#1e293b_0%,#0f172a_100%)] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
                 <div class="absolute -right-[30px] -top-[30px] h-[130px] w-[130px] rounded-full bg-brand/10" />
-                <div class="h-7 w-[38px] rounded-[5px] border border-white/20 bg-[linear-gradient(135deg,#d4a017,#f5c542)]" />
-                <div class="my-3 font-mono text-[1.25rem] tracking-[0.2em] text-white/90">
+                <div class="card-preview__chip rounded-[5px] border border-white/20 bg-[linear-gradient(135deg,#d4a017,#f5c542)]" />
+                <div class="card-preview__number font-mono tracking-[0.2em] text-white/90">
                   {{ cardNumber || '•••• •••• •••• ••••' }}
                 </div>
-                <div class="flex items-end gap-8">
-                  <div>
+                <div class="card-preview__row">
+                  <div class="min-w-0">
                     <div class="mb-0.5 text-[0.6rem] uppercase tracking-[0.1em] text-white/45">{{ t('payment.cardPreviewHolder') }}</div>
-                    <div class="text-[0.85rem] font-medium tracking-[0.05em] text-white/90">{{ cardName || t('payment.cardPreviewName') }}</div>
+                    <div class="card-preview__holder font-medium tracking-[0.05em] text-white/90">{{ cardName || t('payment.cardPreviewName') }}</div>
                   </div>
-                  <div>
+                  <div class="shrink-0">
                     <div class="mb-0.5 text-[0.6rem] uppercase tracking-[0.1em] text-white/45">{{ t('payment.cardPreviewExpiry') }}</div>
                     <div class="text-[0.85rem] font-medium tracking-[0.05em] text-white/90">{{ cardExpiry || 'MM/YY' }}</div>
                   </div>
@@ -376,16 +392,22 @@ onUnmounted(() => {
 
             <div v-else :class="panelClass" class="mb-4">
               <div :class="panelLabelClass">{{ t('payment.qrLabel') }}</div>
-              <div class="mb-4 flex flex-col items-start gap-5 sm:flex-row">
-                <div class="qr-demo">
-                  <div class="qr-demo__grid" />
+              <div class="mb-4 flex flex-col items-center gap-5 sm:flex-row sm:items-start">
+                <div class="qr-frame shrink-0">
+                  <img
+                    v-if="qrImage"
+                    :src="qrImage"
+                    :alt="t('payment.qrAlt')"
+                    class="block h-full w-full rounded-md"
+                    loading="lazy"
+                  />
                 </div>
-                <div>
+                <div class="text-center sm:text-left">
                   <div class="mb-1.5 text-[0.95rem] font-bold text-copy">{{ t('payment.qrTitle') }}</div>
                   <div class="mb-3 text-[0.82rem] leading-[1.5] text-dim">
                     {{ t('payment.qrText') }}
                   </div>
-                  <div class="flex flex-wrap gap-1.5">
+                  <div class="flex flex-wrap justify-center gap-1.5 sm:justify-start">
                     <span class="rounded-full border border-line bg-surface-soft px-2.5 py-1 text-[0.72rem] font-semibold text-muted">Mbank</span>
                     <span class="rounded-full border border-line bg-surface-soft px-2.5 py-1 text-[0.72rem] font-semibold text-muted">O!Деньги</span>
                     <span class="rounded-full border border-line bg-surface-soft px-2.5 py-1 text-[0.72rem] font-semibold text-muted">ЭлКарт</span>
@@ -513,30 +535,59 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.qr-demo {
-  display: grid;
-  place-items: center;
-  width: 110px;
-  height: 110px;
+.qr-frame {
+  width: 160px;
+  height: 160px;
+  padding: 10px;
   border-radius: 0.75rem;
-  border: 2px solid rgba(245, 158, 11, 0.3);
-  background:
-    linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02)),
-    var(--surface-soft);
+  border: 2px solid rgba(245, 158, 11, 0.35);
+  background: #fff;
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.15);
 }
 
-.qr-demo__grid {
-  width: 78px;
-  height: 78px;
-  border-radius: 0.35rem;
-  background:
-    linear-gradient(90deg, currentColor 14%, transparent 14% 28%, currentColor 28% 42%, transparent 42% 56%, currentColor 56% 70%, transparent 70% 84%, currentColor 84%),
-    linear-gradient(currentColor 14%, transparent 14% 28%, currentColor 28% 42%, transparent 42% 56%, currentColor 56% 70%, transparent 70% 84%, currentColor 84%);
-  color: rgba(245, 158, 11, 0.85);
-  mask:
-    radial-gradient(circle at 18% 18%, #000 0 18px, transparent 18px),
-    radial-gradient(circle at 82% 18%, #000 0 18px, transparent 18px),
-    radial-gradient(circle at 18% 82%, #000 0 18px, transparent 18px),
-    linear-gradient(#000, #000);
+@media (max-width: 480px) {
+  .qr-frame { width: 140px; height: 140px; }
+}
+
+.card-preview {
+  width: 100%;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+  aspect-ratio: 1.586 / 1;
+  padding: clamp(0.9rem, 4vw, 1.25rem);
+  gap: clamp(0.4rem, 2vw, 0.75rem);
+}
+
+.card-preview__chip {
+  width: clamp(34px, 9vw, 42px);
+  height: clamp(24px, 6.5vw, 30px);
+}
+
+.card-preview__number {
+  font-size: clamp(0.95rem, 4.5vw, 1.25rem);
+  word-spacing: 0.1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-preview__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(0.75rem, 4vw, 2rem);
+}
+
+.card-preview__holder {
+  font-size: clamp(0.72rem, 3vw, 0.85rem);
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 360px) {
+  .card-preview__number { letter-spacing: 0.1em; }
 }
 </style>

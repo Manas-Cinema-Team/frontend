@@ -121,8 +121,11 @@ const statusClass = computed(() =>
 
       <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
         <div class="xl:col-span-3">
-          <div class="text-center mb-8">
-            <div class="screen-bar mx-auto" style="max-width: 560px" />
+          <div class="hall-stage">
+            <div class="hall-screen" aria-hidden="true">
+              <div class="hall-screen__surface" />
+              <div class="hall-screen__glow" />
+            </div>
             <p class="screen-label">{{ t('seats.screen') }}</p>
           </div>
 
@@ -167,6 +170,54 @@ const statusClass = computed(() =>
   font-size: 0.7rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
+}
+
+.hall-stage {
+  position: relative;
+  margin: 0 auto 2rem;
+  max-width: 640px;
+  text-align: center;
+  padding: 0 0.5rem;
+}
+
+.hall-screen {
+  position: relative;
+  width: 100%;
+  height: 56px;
+  perspective: 600px;
+}
+
+.hall-screen__surface {
+  position: absolute;
+  inset: 0;
+  margin: 0 auto;
+  border-radius: 50% / 100% 100% 0 0;
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.85) 0%, rgba(245, 158, 11, 0.35) 60%, rgba(245, 158, 11, 0) 100%);
+  transform: rotateX(46deg);
+  transform-origin: bottom center;
+  box-shadow: 0 -2px 24px rgba(245, 158, 11, 0.45);
+}
+
+.hall-screen__glow {
+  position: absolute;
+  left: 50%;
+  bottom: -28px;
+  width: 90%;
+  height: 80px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at top, rgba(245, 158, 11, 0.28), transparent 70%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+[data-theme="light"] .hall-screen__surface {
+  background: linear-gradient(180deg, rgba(217, 119, 6, 0.85) 0%, rgba(217, 119, 6, 0.3) 60%, rgba(217, 119, 6, 0) 100%);
+  box-shadow: 0 -2px 24px rgba(217, 119, 6, 0.35);
+}
+
+@media (max-width: 480px) {
+  .hall-screen { height: 40px; }
+  .hall-screen__glow { height: 60px; bottom: -20px; }
 }
 
 .hold-timer {

@@ -155,7 +155,6 @@ const ky: Dict = {
   'profile.user': 'Колдонуучу',
   'profile.sessionState': 'Сессиянын абалы',
   'profile.sessionActive': 'Ушул браузерде активдүү',
-  'profile.localHistoryNote': 'Билет тарыхы ушул браузерде локалдуу сакталат жана эми ар бир аккаунт үчүн өзүнчө көрсөтүлөт.',
   'profile.confirmRemove': 'Бул билетти тарыхтан өчүрөсүзбү?',
   'profile.noTicketsTitle': 'Азырынча билет жок',
   'profile.noTicketsText': 'Тасманы тандап, азыр эле орун брондоңуз',
@@ -196,6 +195,7 @@ const ky: Dict = {
   'payment.qrLabel': 'QR аркылуу төлөө',
   'payment.qrTitle': 'Төлөмдү мобилдик банктан ырастаңыз',
   'payment.qrText': 'Төлөгөндөн кийин төмөнкү баскычты басыңыз. Backend бронду `/bookings/{id}/confirm/` аркылуу ырастайт.',
+  'payment.qrAlt': 'Төлөм үчүн QR-код',
   'payment.devHint': 'Форма backend\'тен чыныгы бронду колдонот, ал эми төлөмдү ырастоо dev үчүн mock-flow менен жүрөт.',
   'payment.processing': 'Ырасталууда...',
   'payment.payAction': '{amount} төлөө',
@@ -216,6 +216,15 @@ const ky: Dict = {
 
   'notfound.text': 'Бет табылган жок.',
   'date.today': 'Бүгүн',
+
+  'errors.seatHeld': 'Бул орунду башка колдонуучу кармап турат.',
+  'errors.holdExpired': 'Орунду кармоо мөөнөтү бүттү. Орундарды кайра тандаңыз.',
+  'errors.bookingNotActive': 'Бул бронь эми активдүү эмес.',
+  'errors.activeHoldExists': 'Бул сеанска сиздин активдүү брондоо мурунтан бар.',
+  'errors.seatUnavailable': 'Бул орун брондоого жеткиликсиз.',
+  'errors.sessionNotFound': 'Сеанс табылган жок.',
+  'errors.bookingNotFound': 'Бронь табылган жок.',
+  'errors.paymentFailed': 'Төлөмдү ырастоо мүмкүн болгон жок.',
 }
 
 export default ky

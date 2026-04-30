@@ -140,10 +140,6 @@ const tabClass = (active: boolean) =>
               </div>
             </div>
           </div>
-          <div class="flex items-start gap-2 rounded-xl border border-brand/20 bg-brand/10 px-4 py-3 text-[0.8rem] text-dim">
-            <AppIcon name="info" :size="15" />
-            {{ t('profile.localHistoryNote') }}
-          </div>
         </div>
 
         <!-- Мои билеты -->

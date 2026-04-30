@@ -285,8 +285,25 @@ const mapBooking = (booking: BackendBooking): Booking => ({
   createdAt: booking.created_at,
 })
 
+const API_ERROR_KEYS: Record<string, string> = {
+  SEAT_HELD: 'errors.seatHeld',
+  HOLD_EXPIRED: 'errors.holdExpired',
+  BOOKING_NOT_ACTIVE: 'errors.bookingNotActive',
+  ACTIVE_HOLD_EXISTS: 'errors.activeHoldExists',
+  SEAT_UNAVAILABLE: 'errors.seatUnavailable',
+  SESSION_NOT_FOUND: 'errors.sessionNotFound',
+  BOOKING_NOT_FOUND: 'errors.bookingNotFound',
+  PAYMENT_FAILED: 'errors.paymentFailed',
+  UNAUTHORIZED: 'auth.required',
+}
+
 export const getApiErrorMessage = (error: unknown, fallback = t('auth.requestFailed')) => {
   if (error instanceof ApiError) {
+    const key = API_ERROR_KEYS[error.code]
+    if (key) {
+      const localized = t(key)
+      if (localized && localized !== key) return localized
+    }
     return error.message || fallback
   }
 

@@ -2,11 +2,11 @@ const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '')
 
 const detectDefaultApiBaseUrl = () => {
   if (typeof window === 'undefined') {
-    return 'http://localhost:8000/api/v1'
+    return 'http://localhost:8080/api/v1'
   }
 
   const host = window.location.hostname === '127.0.0.1' ? '127.0.0.1' : 'localhost'
-  return `http://${host}:8000/api/v1`
+  return `http://${host}:8080/api/v1`
 }
 
 export const API_BASE_URL = trimTrailingSlash(
